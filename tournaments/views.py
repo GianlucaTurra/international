@@ -7,7 +7,7 @@ from tournaments.models import Tournament, TournamentOut, TournamnetIn
 api = NinjaAPI()
 
 
-@api.post("/create", response=TournamentOut)
+@api.post("/create", response={201: TournamentOut})
 def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
     Create a tournament with an optional list of players. Players can be
@@ -15,7 +15,7 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
     tournament = Tournament.objects.create(name=payload.name)
     tournament.add_player_from_playerin_list(payload.players)
-    return TournamentOut(
+    return 201, TournamentOut(
         id=tournament.pk,
         name=tournament.name,
         players=playersToOutput(players=list(tournament.players.all())),
