@@ -25,5 +25,5 @@ class PlayerOut(Schema):
     name: str
 
 
-def playersToOutput(players: list[Player]) -> list[PlayerOut]:
+def players_to_output(players: list[Player]) -> list[PlayerOut]:
     return [PlayerOut(id=player.pk, name=player.name) for player in players]

@@ -33,3 +33,12 @@ class CreatePlayerTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Player.objects.count(), 2)
+
+    def test_multiple_player_creation_with_one_non_valid(self):
+        response = self.client.post(
+            self.multiple_url,
+            json.dumps([{"name": "Roborbio"}, {"name": None}, {"name": "Sgnagnez"}]),
+            content_type="application/json",
+        )
+        self.assertGreaterEqual(response.status_code, 400)
+        self.assertEqual(Player.objects.count(), 0)
