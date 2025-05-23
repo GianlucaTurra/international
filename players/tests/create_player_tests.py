@@ -1,0 +1,35 @@
+import json
+from django.test import Client, TestCase
+
+from players.models import Player
+
+
+class CreatePlayerTestCase(TestCase):
+    def setUp(self) -> None:
+        self.client = Client()
+        self.single_url = "/players/create"
+        self.multiple_url = "/players/create-multiple"
+
+    def test_no_body_request(self):
+        response = self.client.post(self.single_url)
+        assert response.status_code >= 400
+        response = self.client.post(self.multiple_url)
+        assert response.status_code >= 400
+
+    def test_single_player_creation(self):
+        response = self.client.post(
+            self.single_url,
+            json.dumps({"name": "Roborbio"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Player.objects.count(), 1)
+
+    def test_multiple_player_creation(self):
+        response = self.client.post(
+            self.multiple_url,
+            json.dumps([{"name": "Roborbio"}, {"name": "Sgnagnez"}]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Player.objects.count(), 2)

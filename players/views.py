@@ -3,7 +3,7 @@ from ninja import NinjaAPI, Schema
 
 from players.models import Player, PlayerIn, PlayerOut
 
-api = NinjaAPI()
+api = NinjaAPI(urls_namespace="players")
 
 
 class Message(Schema):
@@ -12,7 +12,14 @@ class Message(Schema):
 
 @api.post("create", response={201: PlayerOut, 400: Message})
 def create_player(request: HttpRequest, player: PlayerIn):
-    if player.id is not None:
-        return 400, {"message": "Player already created."}
     p = Player.objects.create(name=player.name)
     return 201, PlayerOut(id=p.pk, name=p.name)
+
+
+@api.post("create-multiple", response={201: list[PlayerOut]})
+def create_players(request: HttpRequest, players: list[PlayerIn]):
+    ret_players: list[PlayerOut] = []
+    for player in players:
+        p = Player.objects.create(name=player.name)
+        ret_players.append(PlayerOut(id=p.pk, name=p.name))
+    return 201, ret_players

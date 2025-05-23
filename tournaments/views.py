@@ -4,7 +4,7 @@ from ninja import NinjaAPI
 from players.models import playersToOutput
 from tournaments.models import Tournament, TournamentOut, TournamnetIn
 
-api = NinjaAPI()
+api = NinjaAPI(urls_namespace="tournaments")
 
 
 @api.post("/create", response={201: TournamentOut})
