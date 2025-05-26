@@ -6,7 +6,7 @@ from players.models import Player, PlayerIn, PlayerOut
 
 class Tournament(TimeStampedModel, models.Model):
     name = models.CharField(max_length=100, unique=True)
-    players = models.ManyToManyField(Player)
+    players = models.ManyToManyField(Player, related_name="tournaments")
     number_of_rounds = models.IntegerField(null=True)
     ongoing = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
