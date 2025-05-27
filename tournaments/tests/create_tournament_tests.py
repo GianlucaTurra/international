@@ -1,4 +1,5 @@
 from django.test import Client, TestCase
+from django.urls import reverse_lazy
 import json
 
 from tournaments.models import Tournament
@@ -7,7 +8,7 @@ from tournaments.models import Tournament
 class CreateTournamentTestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client()
-        self.url = "/tournaments/create"
+        self.url = reverse_lazy("api-1.0.0:create_tournament")
 
     def test_no_body_request(self):
         response = self.client.post(self.url)

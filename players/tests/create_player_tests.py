@@ -1,5 +1,6 @@
 import json
 from django.test import Client, TestCase
+from django.urls import reverse_lazy
 
 from players.models import Player
 
@@ -7,8 +8,8 @@ from players.models import Player
 class CreatePlayerTestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client()
-        self.single_url = "/players/create"
-        self.multiple_url = "/players/create-multiple"
+        self.single_url = reverse_lazy("api-1.0.0:create_player")
+        self.multiple_url = reverse_lazy("api-1.0.0:create_players")
 
     def test_no_body_request(self):
         response = self.client.post(self.single_url)

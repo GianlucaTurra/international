@@ -9,23 +9,6 @@ from tournaments.models import Tournament, TournamentOut, TournamnetIn
 router = Router()
 
 
-@router.get("/read/{id}", response=TournamentOut)
-def get_tournament(request: HttpRequest, id: int):
-    tournament = get_object_or_404(Tournament, pk=id)
-    return TournamentOut(id=tournament.pk, name=tournament.name)
-
-
-@router.get("/all", response=list[TournamentOut])
-@paginate
-def get_tournaments(request: HttpRequest) -> list[TournamentOut]:
-    return [
-        TournamentOut(
-            id=t.pk, name=t.name, players=players_to_output(list(t.players.all()))
-        )
-        for t in Tournament.objects.all()
-    ]
-
-
 @router.post("/create", response={201: TournamentOut})
 def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
@@ -39,3 +22,25 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
         name=tournament.name,
         players=players_to_output(players=list(tournament.players.all())),
     )
+
+
+@router.get("/{id}", response=TournamentOut)
+def get_tournament(request: HttpRequest, id: int):
+    tournament = get_object_or_404(Tournament, pk=id)
+    return TournamentOut(id=tournament.pk, name=tournament.name)
+
+
+@router.get("/", response=list[TournamentOut])
+@paginate
+def get_tournaments(request: HttpRequest) -> list[TournamentOut]:
+    """
+    Get the list of all tournaments. By default results are paginated, with
+    100 entries per-page. Page limit and offset can be set by `limit` and
+    `offset` query parameters.
+    """
+    return [
+        TournamentOut(
+            id=t.pk, name=t.name, players=players_to_output(list(t.players.all()))
+        )
+        for t in Tournament.objects.all()
+    ]

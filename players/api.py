@@ -12,13 +12,7 @@ class Message(Schema):
     message: str
 
 
-@router.get("/read/{id}")
-def get_player(request: HttpRequest, id: int):
-    player = get_object_or_404(Player, pk=id)
-    return PlayerOut(id=player.pk, name=player.pk)
-
-
-@router.get("/read/all", response=list[PlayerOut])
+@router.get("/", response=list[PlayerOut])
 @paginate
 def get_players(request: HttpRequest):
     return players_to_output(list(Player.objects.all()))
@@ -37,3 +31,9 @@ def create_players(request: HttpRequest, players: list[PlayerIn]):
         p = Player.objects.create(name=player.name)
         ret_players.append(PlayerOut(id=p.pk, name=p.name))
     return 201, ret_players
+
+
+@router.get("/{id}")
+def get_player(request: HttpRequest, id: int):
+    player = get_object_or_404(Player, pk=id)
+    return PlayerOut(id=player.pk, name=player.pk)
