@@ -31,6 +31,16 @@ def get_tournament(request: HttpRequest, id: int):
     return TournamentOut(id=tournament.pk, name=tournament.name)
 
 
+@router.patch("/{id}/players/remove", response=List[PlayerOut])
+def remove_player(request: HttpRequest, id: int):
+    pass
+
+
+@router.delete("/{id}", response=TournamentOut)
+def delete_tournament(request: HttpRequest, id: int):
+    pass
+
+
 # TODO: players without id should be registered?
 @router.put("/{id}/add-players", response=List[PlayerOut])
 def add_players_to_tournament(request: HttpRequest, id: int, payload: List[PlayerIn]):
