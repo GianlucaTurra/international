@@ -1,9 +1,10 @@
+from typing import List
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from players.models import players_to_output
+from players.models import PlayerIn, PlayerOut, players_to_output
 from tournaments.models import Tournament, TournamentOut, TournamnetIn
 
 router = Router()
@@ -28,6 +29,22 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
 def get_tournament(request: HttpRequest, id: int):
     tournament = get_object_or_404(Tournament, pk=id)
     return TournamentOut(id=tournament.pk, name=tournament.name)
+
+
+# TODO: players without id should be registered?
+@router.put("/{id}/add-players", response=List[PlayerOut])
+def add_players_to_tournament(request: HttpRequest, id: int, payload: List[PlayerIn]):
+    """
+    Add a list of players to a tournament.
+    Returns the list of registered players to that tournament including
+    previously registered players.
+    """
+    tournament = get_object_or_404(Tournament, pk=id)
+    for player in payload:
+        if player.id is None:
+            continue
+        tournament.players.add(player.id)
+    return tournament.players.all()
 
 
 @router.get("/", response=list[TournamentOut])
