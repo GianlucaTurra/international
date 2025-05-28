@@ -43,4 +43,4 @@ class AddPlayersToTournamentTestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.tournament.players.count(), 1)
+        self.assertEqual(self.tournament.players.count(), 2)

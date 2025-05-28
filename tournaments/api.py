@@ -1,10 +1,11 @@
 from typing import List
+
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from players.models import PlayerIn, PlayerOut, players_to_output
+from players.models import Player, PlayerIn, PlayerOut
 from tournaments.models import Tournament, TournamentOut, TournamnetIn
 
 router = Router()
@@ -18,56 +19,53 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
     tournament = Tournament.objects.create(name=payload.name)
     tournament.add_player_from_playerin_list(payload.players)
-    return 201, TournamentOut(
-        id=tournament.pk,
-        name=tournament.name,
-        players=players_to_output(players=list(tournament.players.all())),
-    )
+    return 201, tournament
 
 
-@router.get("/{id}", response=TournamentOut)
+@router.get("/{id}", response={200: TournamentOut})
 def get_tournament(request: HttpRequest, id: int):
-    tournament = get_object_or_404(Tournament, pk=id)
-    return TournamentOut(id=tournament.pk, name=tournament.name)
+    return get_object_or_404(Tournament, pk=id)
 
 
 @router.patch("/{id}/players/remove", response=List[PlayerOut])
-def remove_player(request: HttpRequest, id: int):
-    pass
+def remove_player(request: HttpRequest, id: int, payload: List[PlayerIn]):
+    for player in payload:
+        pass
 
 
 @router.delete("/{id}", response=TournamentOut)
 def delete_tournament(request: HttpRequest, id: int):
-    pass
+    tournament = get_object_or_404(Tournament, pk=id)
+    tournament.delete()
+    return 200, tournament
 
 
-# TODO: players without id should be registered?
 @router.put("/{id}/add-players", response=List[PlayerOut])
 def add_players_to_tournament(request: HttpRequest, id: int, payload: List[PlayerIn]):
     """
     Add a list of players to a tournament.
+    Players without id are registered and added to the tournament.
     Returns the list of registered players to that tournament including
     previously registered players.
     """
     tournament = get_object_or_404(Tournament, pk=id)
     for player in payload:
         if player.id is None:
+            p = Player.objects.create(name=player.name)
+            tournament.players.add(p)
+        try:
+            p = Player.objects.get(pk=player.id)
+            tournament.players.add(p)
+        except Player.DoesNotExist:
             continue
-        tournament.players.add(player.id)
+        tournament.players.add()
     return tournament.players.all()
 
 
-@router.get("/", response=list[TournamentOut])
+@router.get("/", response=List[TournamentOut])
 @paginate
-def get_tournaments(request: HttpRequest) -> list[TournamentOut]:
+def get_tournaments(request: HttpRequest):
     """
-    Get the list of all tournaments. By default results are paginated, with
-    100 entries per-page. Page limit and offset can be set by `limit` and
-    `offset` query parameters.
+    Get the list of all tournaments.
     """
-    return [
-        TournamentOut(
-            id=t.pk, name=t.name, players=players_to_output(list(t.players.all()))
-        )
-        for t in Tournament.objects.all()
-    ]
+    return Tournament.objects.all()
