@@ -6,11 +6,15 @@ from players.models import Player, PlayerIn, PlayerOut
 
 
 class Tournament(TimeStampedModel, models.Model):
+    class Statuses(models.TextChoices):
+        PROGRAMMED = "P", "Programmed"
+        ONGOING = "O", "Ongoing"
+        COMPLETED = "C", "Completed"
+
     name = models.CharField(max_length=100, unique=True)
     players = models.ManyToManyField(Player, related_name="tournaments")
     number_of_rounds = models.IntegerField(null=True)
-    ongoing = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
+    status = models.CharField(choices=Statuses, default=Statuses.PROGRAMMED)
 
     class Meta:
         db_table = "tournaments"
@@ -31,6 +35,17 @@ class Tournament(TimeStampedModel, models.Model):
             else:
                 registered_players.append(Player.objects.get(pk=player.id))
         self.players.add(*registered_players)
+
+    def start(self):
+        if self.status is self.Statuses.COMPLETED:
+            # TODO: Raise an error
+            pass
+        if self.status is self.Statuses.ONGOING:
+            return
+        self.status = self.Statuses.ONGOING
+        # TODO: create first round
+        # TODO: create pairings for this round (should be in round?)
+        self.save()
 
 
 class TournamnetIn(Schema):

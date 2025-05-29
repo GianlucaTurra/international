@@ -11,6 +11,12 @@ from tournaments.models import Tournament, TournamentOut, TournamnetIn
 router = Router()
 
 
+@router.post("/{id}/start")
+def start_tournament(request: HttpRequest, id: int):
+    tournament = get_object_or_404(Tournament, pk=id)
+    tournament.start()
+
+
 @router.post("/create", response={201: TournamentOut})
 def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
