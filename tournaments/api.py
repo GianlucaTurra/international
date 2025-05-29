@@ -28,9 +28,21 @@ def get_tournament(request: HttpRequest, id: int):
 
 
 @router.patch("/{id}/players/remove", response=List[PlayerOut])
-def remove_player(request: HttpRequest, id: int, payload: List[PlayerIn]):
-    for player in payload:
-        pass
+def remove_players(request: HttpRequest, id: int, players: List[int]):
+    """
+    Remove a list of players from a given tournaments. If a given id does not
+    exist in the Player table or in the tournament's player list it is ignored.
+    """
+    tournament = get_object_or_404(Tournament, pk=id)
+    for player in players:
+        p: Player | None = None
+        try:
+            p = Player.objects.get(pk=player)
+        except Player.DoesNotExist:
+            continue
+        if tournament.players.contains(p):
+            tournament.players.remove(p)
+    return tournament.players.all()
 
 
 @router.delete("/{id}", response=TournamentOut)

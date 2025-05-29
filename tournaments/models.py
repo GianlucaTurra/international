@@ -1,3 +1,4 @@
+from typing import List
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from ninja import Schema
@@ -23,7 +24,7 @@ class Tournament(TimeStampedModel, models.Model):
     def add_player_from_playerin_list(self, players: list[PlayerIn] | None):
         if players is None:
             return
-        registered_players: list[Player] = []
+        registered_players: List[Player] = []
         for player in players:
             if player.id is None:
                 registered_players.append(Player.objects.create(name=player.name))
