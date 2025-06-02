@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "ninja",
     "players",
     "rounds",
+    "authentication",
 ]
 
 MIDDLEWARE = [
