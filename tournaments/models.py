@@ -1,12 +1,26 @@
 from typing import List
+import math
+
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from ninja import Schema
+
 from players.models import Player, PlayerIn, PlayerOut
 
 
+class TournamentIsCompleted(Exception):
+    """
+    Custom Exception raised to explicitly tell api methods the operation is
+    not valid for completed tournaments.
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class Tournament(TimeStampedModel, models.Model):
-    class Statuses(models.TextChoices):
+    class States(models.TextChoices):
         PROGRAMMED = "P", "Programmed"
         ONGOING = "O", "Ongoing"
         COMPLETED = "C", "Completed"
@@ -14,7 +28,7 @@ class Tournament(TimeStampedModel, models.Model):
     name = models.CharField(max_length=100, unique=True)
     players = models.ManyToManyField(Player, related_name="tournaments")
     number_of_rounds = models.IntegerField(null=True)
-    status = models.CharField(choices=Statuses, default=Statuses.PROGRAMMED)
+    state = models.CharField(choices=States, default=States.PROGRAMMED)
 
     class Meta:
         db_table = "tournaments"
@@ -25,6 +39,7 @@ class Tournament(TimeStampedModel, models.Model):
     def __str__(self) -> str:
         return self.name
 
+    # TODO: refactor with less indentation
     def add_player_from_playerin_list(self, players: list[PlayerIn] | None):
         if players is None:
             return
@@ -33,16 +48,23 @@ class Tournament(TimeStampedModel, models.Model):
             if player.id is None:
                 registered_players.append(Player.objects.create(name=player.name))
             else:
-                registered_players.append(Player.objects.get(pk=player.id))
+                try:
+                    p = Player.objects.get(pk=player.id)
+                    registered_players.append(p)
+                except Player.DoesNotExist:
+                    registered_players.append(Player.objects.create(name=player.name))
         self.players.add(*registered_players)
 
+    def calculate_omptimal_number_of_rounds(self):
+        self.number_of_rounds = math.ceil(math.log(self.players.count(), 2))
+
     def start(self):
-        if self.status is self.Statuses.COMPLETED:
-            # TODO: Raise an error
-            pass
-        if self.status is self.Statuses.ONGOING:
+        if self.state is self.States.COMPLETED:
+            raise TournamentIsCompleted("Cannot start an already completed tournament")
+        if self.state is self.States.ONGOING:
             return
-        self.status = self.Statuses.ONGOING
+        self.state = self.States.ONGOING
+        self.calculate_omptimal_number_of_rounds()
         # TODO: create first round
         # TODO: create pairings for this round (should be in round?)
         self.save()
