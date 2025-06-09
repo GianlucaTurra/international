@@ -1,5 +1,5 @@
-from typing import List
 import math
+from typing import List
 
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
@@ -20,6 +20,10 @@ class TournamentIsCompleted(Exception):
 
 
 class Tournament(TimeStampedModel, models.Model):
+    """
+    Model representation for a Tournament.
+    """
+
     class States(models.TextChoices):
         PROGRAMMED = "P", "Programmed"
         ONGOING = "O", "Ongoing"
@@ -31,6 +35,10 @@ class Tournament(TimeStampedModel, models.Model):
     state = models.CharField(choices=States, default=States.PROGRAMMED)
 
     class Meta:
+        """
+        Meta information for Tournament table.
+        """
+
         db_table = "tournaments"
         verbose_name_plural = "tournamens"
         get_latest_by = "-created"
@@ -55,18 +63,23 @@ class Tournament(TimeStampedModel, models.Model):
                     registered_players.append(Player.objects.create(name=player.name))
         self.players.add(*registered_players)
 
-    def calculate_omptimal_number_of_rounds(self):
+    def calculate_optimal_number_of_rounds(self) -> None:
+        if self.players.count() <= 0:
+            self.number_of_rounds = 1
+            return
         self.number_of_rounds = math.ceil(math.log(self.players.count(), 2))
 
-    def start(self):
+    def start(self) -> None:
         if self.state is self.States.COMPLETED:
             raise TournamentIsCompleted("Cannot start an already completed tournament")
         if self.state is self.States.ONGOING:
             return
         self.state = self.States.ONGOING
-        self.calculate_omptimal_number_of_rounds()
-        # TODO: create first round
-        # TODO: create pairings for this round (should be in round?)
+        self.calculate_optimal_number_of_rounds()
+        if (self.players.count() % 2) != 0:
+            self.players.add(
+                Player.objects.create(name=("Bye - " + self.name), is_placeholder=True)
+            )
         self.save()
 
 

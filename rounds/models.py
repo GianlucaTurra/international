@@ -1,4 +1,5 @@
 from django.db import models
+
 from tournaments.models import Tournament
 
 
