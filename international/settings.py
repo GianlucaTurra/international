@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "tournaments",
     "ninja",
+    "ninja_extra",
     "players",
     "rounds",
     "corsheaders",
+    "users",
 ]
 
 MIDDLEWARE = [
