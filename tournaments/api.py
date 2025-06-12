@@ -6,7 +6,8 @@ from ninja import Router
 from ninja.pagination import paginate
 
 from rounds.functions import generate_first_round
-from tournaments.models import Tournament, TournamentOut, TournamnetIn
+from tournaments.models import Tournament
+from tournaments.schemas import TournamentOut, TournamnetIn
 
 router = Router()
 

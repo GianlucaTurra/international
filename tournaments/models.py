@@ -3,9 +3,9 @@ from typing import List
 
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from ninja import Schema
 
-from players.models import Player, PlayerIn, PlayerOut
+from players.models import Player
+from players.schemas import PlayerIn
 
 
 class TournamentIsCompleted(Exception):
@@ -81,14 +81,3 @@ class Tournament(TimeStampedModel, models.Model):
                 Player.objects.create(name=("Bye - " + self.name), is_placeholder=True)
             )
         self.save()
-
-
-class TournamnetIn(Schema):
-    name: str
-    players: list[PlayerIn] | None = None
-
-
-class TournamentOut(Schema):
-    id: int
-    name: str
-    players: list[PlayerOut] | None = None

@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from players.models import Player, PlayerIn, PlayerOut, players_to_output
+from players.models import Player
+from players.schemas import PlayerOut, PlayerIn
 
 router = Router()
 
@@ -13,7 +14,7 @@ router = Router()
 @router.get("/", response=list[PlayerOut])
 @paginate
 def get_players(request: HttpRequest):
-    return players_to_output(list(Player.objects.all()))
+    return Player.objects.all()
 
 
 @router.post("/create", response={201: PlayerOut})

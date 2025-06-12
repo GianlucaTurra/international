@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "players",
     "rounds",
     "pairings",
+    "standings",
 ]
 
 MIDDLEWARE = [
