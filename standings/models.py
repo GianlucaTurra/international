@@ -15,6 +15,9 @@ class Standing(models.Model):
     )
     matches_won = models.IntegerField(default=0)
     games_won = models.IntegerField(default=0)
+    matches_played = models.IntegerField(default=0)
+    opponents_match_winrate = models.FloatField(default=0)
+    opponents_game_winrate = models.FloatField(default=0)
     points = models.IntegerField(default=0)
 
     class Meta:
