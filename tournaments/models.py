@@ -29,7 +29,7 @@ class Tournament(TimeStampedModel, models.Model):
         ONGOING = "O", "Ongoing"
         COMPLETED = "C", "Completed"
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     players = models.ManyToManyField(Player, related_name="tournaments")
     number_of_rounds = models.IntegerField(null=True)
     state = models.CharField(choices=States, default=States.PROGRAMMED)
