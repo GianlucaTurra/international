@@ -1,5 +1,4 @@
 import json
-from os import name
 
 from django.test import Client, TestCase
 from django.urls import reverse_lazy
@@ -51,13 +50,17 @@ class SaveFirstRoundResultsTestCase(TestCase):
         self.daniele_entry = PlayerEntry.objects.create(
             pairing=self.pairing_one, player=self.daniele
         )
-        self.standings = Standing.objects.bulk_create(
-            [
-                Standing(tournament=self.tournament, player=self.timoty),
-                Standing(tournament=self.tournament, player=self.gianluca),
-                Standing(tournament=self.tournament, player=self.edoardo),
-                Standing(tournament=self.tournament, player=self.daniele),
-            ]
+        self.timoty_standing = Standing.objects.create(
+            tournament=self.tournament, player=self.timoty
+        )
+        self.gianluca_standing = Standing.objects.create(
+            tournament=self.tournament, player=self.gianluca
+        )
+        self.edoardo_standing = Standing.objects.create(
+            tournament=self.tournament, player=self.edoardo
+        )
+        self.daniele_standing = Standing.objects.create(
+            tournament=self.tournament, player=self.daniele
         )
         self.url = reverse_lazy("api-1.0.0:save_round")
         self.client = Client()
@@ -67,3 +70,6 @@ class SaveFirstRoundResultsTestCase(TestCase):
             self.url, json.dumps(TEST_DATA), content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
+        self.gianluca.refresh_from_db()
+        self.assertEqual(self.gianluca_standing.matches_played, 1)
+        self.assertEqual(self.gianluca_standing.matches_won, 1)

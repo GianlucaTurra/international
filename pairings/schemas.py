@@ -8,6 +8,7 @@ class PlayerEntrySchema(Schema):
     id: int | None = None
     player: PlayerOut
     wins: int
+    draws: int
 
 
 class PairingSchema(Schema):

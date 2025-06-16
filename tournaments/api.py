@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from rounds.functions import generate_first_round
+from rounds.modules import first_round
 from tournaments.models import Tournament
 from tournaments.schemas import TournamentOut, TournamnetIn
 
@@ -21,7 +21,7 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     tournament = Tournament.objects.create(name=payload.name)
     tournament.add_player_from_playerin_list(payload.players)
     tournament.start()
-    generate_first_round(tournament)
+    first_round.generate_first_round(tournament)
     return 201, tournament
 
 

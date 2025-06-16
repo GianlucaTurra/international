@@ -14,8 +14,13 @@ class Standing(models.Model):
         Player, on_delete=models.CASCADE, related_name="standings"
     )
     matches_won = models.IntegerField(default=0)
+    matches_tied = models.IntegerField(default=0)
     games_won = models.IntegerField(default=0)
+    games_tied = models.IntegerField(default=0)
     matches_played = models.IntegerField(default=0)
+    games_played = models.IntegerField(default=0)
+
+    # TODO: are these needed?
     opponents_match_winrate = models.FloatField(default=0)
     opponents_game_winrate = models.FloatField(default=0)
     points = models.IntegerField(default=0)

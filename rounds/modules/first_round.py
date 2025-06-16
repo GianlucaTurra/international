@@ -12,11 +12,15 @@ def generate_first_round(tournament: Tournament) -> None:
     first_round = Round.objects.create(number=1, tournament=tournament)
     player_list = list(tournament.players.all())
     random.shuffle(player_list)
-    create_pairings(first_round, player_list)
+    create_first_round_pairings(first_round, player_list)
     create_standings(tournament, player_list)
 
 
-def create_pairings(first_round: Round, player_list: List[Player]):
+def create_first_round_pairings(first_round: Round, player_list: List[Player]):
+    """
+    Create pairings for the first round of a tournament. With no results nor
+    rules to evaluate players the players list is randomly shuffled.
+    """
     first_half, second_half = (
         player_list[: len(player_list) // 2],
         player_list[len(player_list) // 2 :],
