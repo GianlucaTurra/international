@@ -41,7 +41,7 @@ class PlayerEntry(models.Model):
         Player, on_delete=models.DO_NOTHING, related_name="pairings"
     )
     standing: ForeignKey[Standing] = models.ForeignKey(
-        Standing, on_delete=models.CASCADE, related_name="pairing_entries"
+        Standing, on_delete=models.CASCADE, related_name="pairing_entries", null=True
     )
     wins = models.IntegerField(default=0)
     draws = models.IntegerField(default=0)
