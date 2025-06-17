@@ -1,7 +1,7 @@
 from typing import List
 from django.shortcuts import get_object_or_404
 
-from pairings.models import Pairing, PlayerEntry
+from pairings.models import Pairing, PairingResult, PlayerEntry
 from pairings.schemas import PairingSchema
 from standings.models import Standing
 
@@ -28,19 +28,19 @@ def update_player_entries(pairing: Pairing, req_pairing: PairingSchema):
 def update_standings():
     first_entry = updated_entries[0]
     second_entry = updated_entries[1]
+    games_played = first_entry.wins + second_entry.wins
     # TODO: should read for id not for a field like this...
     first_player_standing = Standing.objects.get(player=first_entry.player)
     second_player_standing = Standing.objects.get(player=second_entry.player)
-    first_player_standing.games_won += first_entry.wins
-    second_player_standing.games_won += second_entry.wins
-    first_player_standing.matches_played += 1
-    second_player_standing.matches_played += 1
-    first_player_standing.games_played += first_entry.wins + second_entry.wins
-    second_player_standing.games_played += first_entry.wins + second_entry.wins
     if first_entry.wins > second_entry.wins:
-        first_player_standing.matches_won += 1
-    if second_entry.wins > first_entry.wins:
-        second_player_standing.matches_won += 1
+        first_entry.update_standings(PairingResult.WIN, games_played)
+        second_entry.update_standings(PairingResult.LOSS, games_played)
+    elif second_entry.wins > first_entry.wins:
+        first_entry.update_standings(PairingResult.LOSS, games_played)
+        second_entry.update_standings(PairingResult.WIN, games_played)
+    else:
+        first_entry.update_standings(PairingResult.DRAW, games_played)
+        second_entry.update_standings(PairingResult.DRAW, games_played)
     Standing.objects.bulk_update(
         [first_player_standing, second_player_standing],
         ["games_won", "matches_won", "games_played", "matches_played"],

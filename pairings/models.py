@@ -56,13 +56,14 @@ class PlayerEntry(models.Model):
     def __str__(self):
         return f"{self.player.name} - {self.wins}"
 
-    def update_standings(self, result: PairingResult):
+    def update_standings(self, result: PairingResult, games_played: int):
         self.standing.games_won += self.wins
         self.standing.games_tied += self.draws
         self.standing.matches_played += 1
-        match result.name:
-            case PairingResult."WIN":
+        self.standing.games_played += games_played
+        match result:
+            case PairingResult.WIN:
                 self.standing.matches_won += 1
-            case DRAW:
+            case PairingResult.DRAW:
                 self.standing.matches_tied += 1
         self.standing.save()
