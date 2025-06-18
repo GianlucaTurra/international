@@ -12,11 +12,12 @@ class FirstRoundGenerationTestCase(TestCase):
 
     def test_empty_round(self):
         """
-        Just testing if an empty round is created
+        If no player is passed, no rounds nor standings should be created
         """
-        # generate_first_round(self.tournament)
-        # self.assertEqual(self.tournament.rounds.count(), 1)  # type: ignore
-        pass
+        generate_first_round(self.tournament)
+        self.tournament.refresh_from_db()
+        self.assertEqual(self.tournament.rounds.count(), 0)  # type: ignore
+        self.assertEqual(self.tournament.standings.count(), 0)  # type: ignore
 
     def test_even_number_of_players(self):
         self.tournament.players.add(

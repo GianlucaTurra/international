@@ -11,6 +11,8 @@ standings: List[Standing] = []
 
 
 def generate_first_round(tournament: Tournament) -> None:
+    if list(tournament.players.all()) == []:
+        return
     first_round = Round.objects.create(number=1, tournament=tournament)
     player_list = list(tournament.players.all())
     random.shuffle(player_list)
