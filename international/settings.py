@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "rounds",
     "corsheaders",
     "users",
+    "pairings",
+    "standings",
 ]
 
 MIDDLEWARE = [

@@ -1,9 +1,8 @@
 from django.db import models
-from ninja import Schema
 
 
 class Player(models.Model):
-    name = models.CharField(blank=False, max_length=50, unique=True)
+    name = models.CharField(blank=False, max_length=50)
     is_placeholder = models.BooleanField(default=False)
 
     class Meta:
@@ -13,17 +12,3 @@ class Player(models.Model):
 
     def __str__(self) -> str:
         return self.name
-
-
-class PlayerIn(Schema):
-    id: int | None = None
-    name: str
-
-
-class PlayerOut(Schema):
-    id: int
-    name: str
-
-
-def players_to_output(players: list[Player]) -> list[PlayerOut]:
-    return [PlayerOut(id=player.pk, name=player.name) for player in players]
