@@ -22,6 +22,11 @@ TEST_DATA = {
                     "wins": 2,
                     "draws": 0,
                 },
+            ],
+        },
+        {
+            "id": 2,
+            "entries": [
                 {
                     "id": 3,
                     "player": {"id": 3, "name": "Edoardo"},
@@ -35,7 +40,7 @@ TEST_DATA = {
                     "draws": 0,
                 },
             ],
-        }
+        },
     ],
 }
 
@@ -43,6 +48,7 @@ TEST_DATA = {
 class SaveFirstRoundApiTestCase(TestCase):
     def setUp(self) -> None:
         self.tournament = Tournament.objects.create(name="Test")
+        # Creating players
         self.timoty = Player.objects.create(name="Timoty")
         self.gianluca = Player.objects.create(name="Gianluuca")
         self.edoardo = Player.objects.create(name="Edoardo")
@@ -50,9 +56,11 @@ class SaveFirstRoundApiTestCase(TestCase):
         self.tournament.players.add(
             *[self.timoty, self.gianluca, self.edoardo, self.daniele]
         )
+        # Creating round and pairings
         self.round = Round.objects.create(number=1, tournament=self.tournament)
         self.pairing_one = Pairing.objects.create(round=self.round)
         self.pairing_two = Pairing.objects.create(round=self.round)
+        # Creating standings
         self.timoty_standing = Standing.objects.create(
             tournament=self.tournament, player=self.timoty
         )
@@ -65,6 +73,7 @@ class SaveFirstRoundApiTestCase(TestCase):
         self.daniele_standing = Standing.objects.create(
             tournament=self.tournament, player=self.daniele
         )
+        # Creatings entries for round
         self.timoty_entry = PlayerEntry.objects.create(
             pairing=self.pairing_one, player=self.timoty, standing=self.timoty_standing
         )
@@ -74,12 +83,12 @@ class SaveFirstRoundApiTestCase(TestCase):
             standing=self.gianluca_standing,
         )
         self.eodardo_entry = PlayerEntry.objects.create(
-            pairing=self.pairing_one,
+            pairing=self.pairing_two,
             player=self.edoardo,
             standing=self.edoardo_standing,
         )
         self.daniele_entry = PlayerEntry.objects.create(
-            pairing=self.pairing_one,
+            pairing=self.pairing_two,
             player=self.daniele,
             standing=self.daniele_standing,
         )
@@ -92,6 +101,17 @@ class SaveFirstRoundApiTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.gianluca_standing.refresh_from_db()
+        self.timoty_standing.refresh_from_db()
+        self.daniele_standing.refresh_from_db()
         self.assertEqual(self.gianluca_standing.matches_played, 1)
         self.assertEqual(self.gianluca_standing.games_won, 2)
         self.assertEqual(self.gianluca_standing.matches_won, 1)
+        self.assertEqual(self.gianluca_standing.games_played, 3)
+        self.assertEqual(self.timoty_standing.matches_played, 1)
+        self.assertEqual(self.timoty_standing.games_won, 1)
+        self.assertEqual(self.timoty_standing.matches_won, 0)
+        self.assertEqual(self.timoty_standing.games_played, 3)
+        self.assertEqual(self.daniele_standing.matches_played, 1)
+        self.assertEqual(self.daniele_standing.games_won, 2)
+        self.assertEqual(self.daniele_standing.matches_won, 1)
+        self.assertEqual(self.daniele_standing.games_played, 2)
