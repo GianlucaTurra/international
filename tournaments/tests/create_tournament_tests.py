@@ -1,6 +1,4 @@
 import json
-import pytest
-import pytest_django
 
 from django.test import Client, TestCase
 from django.urls import reverse_lazy
@@ -8,11 +6,15 @@ from django.urls import reverse_lazy
 from rounds.models import Round
 from tournaments.models import Tournament
 
-TOURNAMENT_WITH_NONE_PLAYERS = {"name": "test"}
 TOURNAMENT_WITH_EMPTY_PLAYERS = {"name": "test", "players": []}
 TOURNAMENT_WITH_EVEN_NUMBER_OF_PLAYERS = {
     "name": "test",
-    "players": [{"name": "Pito"}, {"name": "Gianni del Baretto"}],
+    "players": [
+        {"name": "Pito"},
+        {"name": "Gianni del Baretto"},
+        {"name": "Sgnagnez"},
+        {"name": "Gigi Pistoia"},
+    ],
 }
 TOURNAMENT_WITH_ODD_NUMBER_OF_PLAYERS = {
     "name": "test",
@@ -20,11 +22,17 @@ TOURNAMENT_WITH_ODD_NUMBER_OF_PLAYERS = {
         {"name": "Pito"},
         {"name": "Gianni del Baretto"},
         {"name": "Gino"},
+        {"name": "Sgnagnez"},
+        {"name": "Gigi Pistoia"},
     ],
 }
 
 
 class CreateTournamentTestCase(TestCase):
+    """
+    Class to test the create tournament endpoint
+    """
+
     def setUp(self) -> None:
         self.client = Client()
         self.url = reverse_lazy("api-1.0.0:create_tournament")
@@ -33,14 +41,22 @@ class CreateTournamentTestCase(TestCase):
         response = self.client.post(self.url)
         assert response.status_code >= 400
 
-    def test_simple_tournament_creation(self):
+    def test_tournament_creation_with_empty_players(self):
+        """
+        If no player is passed the tournament should be created without
+        players, rounds or standings
+        """
         response = self.client.post(
             self.url,
-            json.dumps(TOURNAMENT_WITH_NONE_PLAYERS),
+            json.dumps(TOURNAMENT_WITH_EMPTY_PLAYERS),
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)
+        tournament = Tournament.objects.get(pk=1)
+        self.assertEqual(tournament.players.count(), 0)
+        self.assertEqual(tournament.rounds.count(), 0)  # type: ignore
+        self.assertEqual(tournament.standings.count(), 0)  # type: ignore
 
     def test_tournament_creation_with_new_player(self):
         response = self.client.post(
@@ -60,7 +76,7 @@ class CreateTournamentTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)
         self.assertEqual(
-            Tournament.objects.get(pk=response.json()["id"]).players.count(), 4
+            Tournament.objects.get(pk=response.json()["id"]).players.count(), 6
         )
         first_round: Round = Tournament.objects.get(pk=1).rounds.get_queryset()[0]  # type: ignore
-        self.assertEqual(first_round.pairings.count(), 2)  # type: ignore
+        self.assertEqual(first_round.pairings.count(), 3)  # type: ignore
