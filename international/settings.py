@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "users",
     "pairings",
     "standings",
+    "managerapp",
 ]
 
 MIDDLEWARE = [

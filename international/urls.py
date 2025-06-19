@@ -16,7 +16,13 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from .api import api
+from .views import redirect_to_manager_app
 
-urlpatterns = [path("admin/", admin.site.urls), path("api/", api.urls)]
+urlpatterns = [
+    path("", view=redirect_to_manager_app),
+    path("admin/", admin.site.urls),
+    path("api/", api.urls),
+    path("manager/", include("managerapp.urls")),
+]
