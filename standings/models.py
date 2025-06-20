@@ -1,6 +1,7 @@
 from django.db import models
 
 from players.models import Player
+from rounds.models import Round
 from tournaments.models import Tournament
 
 
@@ -42,3 +43,27 @@ class Standing(models.Model):
     def __str__(self):
         """Unicode representation of Standing."""
         return f"{self.player}: {self.matches_won} - {self.games_won} - {self.points}"
+
+    def update_oppoenets_statistics(self):
+        pass
+
+
+class OpponentsTracker(models.Model):
+    """Model needed to keep tracker of a player's opponents during a tournament"""
+
+    standing = models.ForeignKey(
+        Standing, on_delete=models.CASCADE, related_name="opponents"
+    )
+    opponent = models.ForeignKey(
+        Player, on_delete=models.DO_NOTHING, related_name="appearences"
+    )
+    round = models.ForeignKey(
+        Round, on_delete=models.CASCADE, related_name="opponents_trackers"
+    )
+
+    class Meta:
+        """Meta information"""
+
+        verbose_name = "OpponentsTracker"
+        verbose_name_plural = "OpponentsTrackers"
+        db_table = "opponents_trackers"
