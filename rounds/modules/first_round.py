@@ -4,15 +4,31 @@ from typing import List
 from pairings.models import Pairing, PlayerEntry
 from players.models import Player
 from rounds.models import Round
-from standings.models import Standing
+from standings.models import OpponentsTracker, Standing
 from tournaments.models import Tournament
 
+
+class FirstRoundGenerator:
+    def __init__(self, tournament: Tournament) -> None:
+        self.standings: List[Standing] = []
+        self.tournament: Tournament = tournament
+        self.round: Round
+        self.players: List[Player] = list(self.tournament.players.all())
+
+    def generate(self):
+        if self.players == []:
+            return
+        self.round = Round.objects.create(number=1, tournament=self.tournament)
+
+
 standings: List[Standing] = []
+this_tournament: Tournament
 
 
 def generate_first_round(tournament: Tournament) -> None:
     if list(tournament.players.all()) == []:
         return
+    this_tournament = tournament
     first_round = Round.objects.create(number=1, tournament=tournament)
     player_list = list(tournament.players.all())
     random.shuffle(player_list)
@@ -39,6 +55,11 @@ def create_first_round_pairings(first_round: Round, player_list: List[Player]):
         )
         players_entries.append(
             PlayerEntry(pairing=pairing, player=p2, standing=find_player_standing(p2))
+        )
+        OpponentsTracker.objects.create(
+            standing=Standing.objects.get(player=p1, tournament=this_tournament),
+            round=first_round,
+            opponent=p2,
         )
     Pairing.objects.bulk_create(pairings)
     PlayerEntry.objects.bulk_create(players_entries)
