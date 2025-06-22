@@ -52,10 +52,10 @@ class OpponentsTracker(models.Model):
     """Model needed to keep tracker of a player's opponents during a tournament"""
 
     standing = models.ForeignKey(
-        Standing, on_delete=models.CASCADE, related_name="opponents"
+        Standing, on_delete=models.CASCADE, related_name="opponents_tacker"
     )
     opponent = models.ForeignKey(
-        Standing, on_delete=models.DO_NOTHING, related_name="appearences"
+        Standing, on_delete=models.DO_NOTHING, related_name="opponents"
     )
     round = models.ForeignKey(
         Round, on_delete=models.CASCADE, related_name="opponents_trackers"

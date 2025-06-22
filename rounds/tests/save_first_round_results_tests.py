@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from pairings.models import Pairing, PlayerEntry
 from players.models import Player
 from rounds.models import Round
-from standings.models import Standing
+from standings.models import OpponentsTracker, Standing
 from tournaments.models import Tournament
 
 TEST_DATA = {
@@ -92,6 +92,26 @@ class SaveFirstRoundApiTestCase(TestCase):
             player=self.daniele,
             standing=self.daniele_standing,
         )
+        OpponentsTracker.objects.create(
+            standing=self.timoty_standing,
+            opponent=self.gianluca_standing,
+            round=self.round,
+        )
+        OpponentsTracker.objects.create(
+            standing=self.gianluca_standing,
+            opponent=self.timoty_standing,
+            round=self.round,
+        )
+        OpponentsTracker.objects.create(
+            standing=self.edoardo_standing,
+            opponent=self.daniele_standing,
+            round=self.round,
+        )
+        OpponentsTracker.objects.create(
+            standing=self.daniele_standing,
+            opponent=self.edoardo_standing,
+            round=self.round,
+        )
         self.url = reverse_lazy("api-1.0.0:save_round")
         self.client = Client()
 
@@ -107,11 +127,14 @@ class SaveFirstRoundApiTestCase(TestCase):
         self.assertEqual(self.gianluca_standing.games_won, 2)
         self.assertEqual(self.gianluca_standing.matches_won, 1)
         self.assertEqual(self.gianluca_standing.games_played, 3)
+        self.assertGreater(self.gianluca_standing.opponents_game_winrate, 0, 3)
         self.assertEqual(self.timoty_standing.matches_played, 1)
         self.assertEqual(self.timoty_standing.games_won, 1)
         self.assertEqual(self.timoty_standing.matches_won, 0)
         self.assertEqual(self.timoty_standing.games_played, 3)
+        self.assertEqual(self.timoty_standing.opponents_match_winrate, 1)
         self.assertEqual(self.daniele_standing.matches_played, 1)
         self.assertEqual(self.daniele_standing.games_won, 2)
         self.assertEqual(self.daniele_standing.matches_won, 1)
         self.assertEqual(self.daniele_standing.games_played, 2)
+        self.assertEqual(self.daniele_standing.opponents_game_winrate, 0)
