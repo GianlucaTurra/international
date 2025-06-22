@@ -55,7 +55,7 @@ class OpponentsTracker(models.Model):
         Standing, on_delete=models.CASCADE, related_name="opponents"
     )
     opponent = models.ForeignKey(
-        Player, on_delete=models.DO_NOTHING, related_name="appearences"
+        Standing, on_delete=models.DO_NOTHING, related_name="appearences"
     )
     round = models.ForeignKey(
         Round, on_delete=models.CASCADE, related_name="opponents_trackers"
