@@ -6,25 +6,37 @@ from typing import List
 
 
 def generate_round(tournament: Tournament) -> None:
+def generate_round(tournament: Tournament) -> Round:
     if tournament.state == Tournament.States.COMPLETED:
         raise TournamentIsCompleted("Cannot create rounds for completed tournaments.")
     round_number = tournament.rounds.count() + 1  # type: ignore
-    new_round = Round.objects.create(number=round_number, tournament=tournament)
+    new_round = Round(number=round_number, tournament=tournament)
     standings: List[Standing] = list(tournament.standings.all())  # type: ignore
     pairings: List[Pairing] = []
     player_entries: List[PlayerEntry] = []
-    for i in range(0, len(standings), 2):
-        p1 = standings[i].player
-        p2 = standings[i + 1].player
-        pairing = Pairing.objects.create(round=new_round)
-        p1_entry = PlayerEntry.objects.create(
-            pairing=pairing, player=p1, standing=standings[i]
+    while len(standings) > 0:
+        standing = standings[0]
+        new_opponent: Standing
+        opponents_already_faced: Set[Standing] = set(standing.opponents.all())  # type: ignore
+        for s in standings[1:]:
+            if s in opponents_already_faced:
+                continue
+            new_opponent = s
+            break
+        pairing = Pairing(round=new_round)
+        entry_1 = PlayerEntry(
+            pairing=pairing, player=standing.player, standing=standing
         )
-        p2_entry = PlayerEntry.objects.create(
-            pairing=pairing, player=p2, standing=standings[i + 1]
+        entry_2 = PlayerEntry(
+            pairing=pairing, player=new_opponent.player, standing=new_opponent
         )
         pairings.append(pairing)
-        player_entries.append(p1_entry)
-        player_entries.append(p2_entry)
+        player_entries.append(entry_1)
+        player_entries.append(entry_2)
+        standings.pop(0)
+        standings.pop(standings.index(new_opponent))
+    new_round.save()
     Standing.objects.bulk_create(standings)
+    Pairing.objects.bulk_create(pairings)
     PlayerEntry.objects.bulk_create(player_entries)
+    return new_round

@@ -6,6 +6,8 @@ from ninja import Router
 from ninja.pagination import paginate
 
 from rounds.modules.first_round import FirstRoundGenerator
+from rounds.modules.generate_round import generate_round
+from rounds.schemas import RoundOut
 from tournaments.models import Tournament
 from tournaments.schemas import TournamentOut, TournamnetIn
 
@@ -23,6 +25,12 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     tournament.start()
     FirstRoundGenerator(tournament).generate()
     return 201, tournament
+
+
+@router.post("/{id}/next-round", response={201: RoundOut})
+def create_next_round(request: HttpRequest, id: int):
+    tournament = get_object_or_404(Tournament, pk=id)
+    return 201, generate_round(tournament)
 
 
 @router.get("/{id}", response={200: TournamentOut})
