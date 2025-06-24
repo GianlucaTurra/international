@@ -1,11 +1,25 @@
+from typing import List, Set
+
 from pairings.models import Pairing, PlayerEntry
 from rounds.models import Round
 from standings.models import Standing
 from tournaments.models import Tournament, TournamentIsCompleted
-from typing import List
 
 
-def generate_round(tournament: Tournament) -> None:
+class RoundGenerator:
+    def __init__(self, tournament: Tournament) -> None:
+        self.tournament = tournament
+        self.standings: List[Standing] = []
+        self.pairings: List[Standing] = []
+        self.player_entries: List[Standing] = []
+
+    def generate(self):
+        if self.tournament.state == Tournament.States.COMPLETED:
+            raise TournamentIsCompleted(
+                "Cannot create rounds for completed tournaments."
+            )
+
+
 def generate_round(tournament: Tournament) -> Round:
     if tournament.state == Tournament.States.COMPLETED:
         raise TournamentIsCompleted("Cannot create rounds for completed tournaments.")
