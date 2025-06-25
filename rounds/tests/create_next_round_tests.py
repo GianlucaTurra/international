@@ -1,9 +1,12 @@
-from django.urls import reverse
+import json
+
 from django.test import Client, TestCase
-from tournaments.models import Tournament
-from rounds.models import Round
+from django.urls import reverse
+
 from players.models import Player
-from standings.models import Standing, OpponentsTracker
+from rounds.models import Round
+from standings.models import OpponentsTracker, Standing
+from tournaments.models import Tournament
 
 
 class CreateNextRoundTestCase(TestCase):
@@ -65,9 +68,11 @@ class CreateNextRoundTestCase(TestCase):
             standing=self.dani_s, opponent=self.gigi_s, round=self.first_round
         )
         self.client = Client()
-        self.url = reverse("api-1.0.0:create_next_round", kwargs={"id": 1})
+        self.url = reverse("api-1.0.0:create_next_round")
 
     def test_round_2_creation(self):
-        response = self.client.post(self.url)
+        response = self.client.post(
+            self.url, data=json.dumps({"id": 1}), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.tournament.rounds.count(), 2)  # type: ignore

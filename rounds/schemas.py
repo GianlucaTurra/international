@@ -1,15 +1,20 @@
-from typing import List
+from typing import Annotated, List, Optional
+
 from ninja import Schema
+from pydantic import AfterValidator, ValidationError
 
 from pairings.schemas import PairingSchema
+from rounds.models import Round
 
 
-class RoundIn(Schema):
-    id: int
-    pairings: List[PairingSchema]
+def exists(id) -> int:
+    try:
+        return Round.objects.get(pk=id).pk
+    except Round.DoesNotExist:
+        raise ValidationError(f"Round id {id} does not exists")
 
 
-class RoundOut(Schema):
-    id: int
-    number: int
+class RoundSchema(Schema):
+    id: Annotated[int, AfterValidator(exists)]
+    number: Optional[int] = None
     pairings: List[PairingSchema]

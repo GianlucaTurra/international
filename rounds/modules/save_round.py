@@ -4,11 +4,11 @@ from django.shortcuts import get_object_or_404
 
 from pairings.models import Pairing, PairingResult, PlayerEntry
 from rounds.models import Round
-from rounds.schemas import RoundIn
+from rounds.schemas import RoundSchema
 from standings.models import Standing
 
 
-def save_round_to_db(round: RoundIn):
+def save_round_to_db(round: RoundSchema):
     current_round: Round = get_object_or_404(Round, pk=round.id)
     for req_pairing in round.pairings:
         updated_entries: List[PlayerEntry] = []

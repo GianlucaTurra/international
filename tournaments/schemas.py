@@ -1,22 +1,33 @@
-from typing import List
+from typing import Annotated, List, Optional
+
 from ninja import Schema
-from rounds.schemas import RoundOut
+from pydantic import AfterValidator, ValidationError
+
 from players.schemas import PlayerIn, PlayerOut
+from rounds.schemas import RoundSchema
 from standings.schemas import StandingOut
+from tournaments.models import Tournament
+
+
+def exists(id) -> int:
+    try:
+        return Tournament.objects.get(pk=id).pk
+    except Tournament.DoesNotExist:
+        raise ValidationError(f"Tournament id {id} does not exists")
 
 
 class TournamnetIn(Schema):
     name: str
-    players: List[PlayerIn] | None = None
+    players: Optional[List[PlayerIn]] = None
 
 
 class TournamentOut(Schema):
     id: int
     name: str
-    players: List[PlayerOut] | None = None
-    rounds: List[RoundOut] | None = None
-    standings: List[StandingOut] | None = None
+    players: Optional[List[PlayerOut]] = None
+    rounds: Optional[List[RoundSchema]] = None
+    standings: Optional[List[StandingOut]] = None
 
 
 class TournamentSelector(Schema):
-    id: int
+    id: Annotated[int, AfterValidator(exists)]
