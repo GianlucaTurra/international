@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from players.models import Player
 from rounds.models import Round
-from rounds.modules.first_round import generate_first_round
+from rounds.modules.first_round import FirstRoundGenerator
 from tournaments.models import Tournament
 
 
@@ -12,11 +12,12 @@ class FirstRoundGenerationTestCase(TestCase):
 
     def test_empty_round(self):
         """
-        Just testing if an empty round is created
+        If no player is passed, no rounds nor standings should be created
         """
-        # generate_first_round(self.tournament)
-        # self.assertEqual(self.tournament.rounds.count(), 1)  # type: ignore
-        pass
+        FirstRoundGenerator(self.tournament).generate()
+        self.tournament.refresh_from_db()
+        self.assertEqual(self.tournament.rounds.count(), 0)  # type: ignore
+        self.assertEqual(self.tournament.standings.count(), 0)  # type: ignore
 
     def test_even_number_of_players(self):
         self.tournament.players.add(
@@ -25,7 +26,7 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Stefano"),
             ]
         )
-        generate_first_round(self.tournament)
+        FirstRoundGenerator(self.tournament).generate()
         first_round: Round = self.tournament.rounds.get_queryset()[0]  # type: ignore
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore
 
@@ -41,6 +42,6 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Eliminiano"),
             ]
         )
-        generate_first_round(self.tournament)
+        FirstRoundGenerator(self.tournament).generate()
         first_round: Round = self.tournament.rounds.get_queryset()[0]  # type: ignore
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore
