@@ -6,9 +6,12 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 
 from rounds.models import Round
+from rounds.modules.generate_round import generate_round
 from rounds.modules.save_round import save_round_to_db
 from rounds.schemas import RoundIn, RoundOut
 from standings.schemas import StandingOut
+from tournaments.models import Tournament
+from tournaments.schemas import TournamentSelector
 
 router = Router()
 
@@ -20,6 +23,12 @@ def save_round(request: HttpRequest, payload: RoundIn):
     save_round_to_db(payload)
     current_round.refresh_from_db()
     return current_round.tournament.standings.all()
+
+
+@router.post("/next", response={201: RoundOut})
+def create_next_round(request: HttpRequest, payload: TournamentSelector):
+    tournament = get_object_or_404(Tournament, pk=payload.id)
+    return 201, generate_round(tournament)
 
 
 @router.get("/{round_id}", response={200: RoundOut})

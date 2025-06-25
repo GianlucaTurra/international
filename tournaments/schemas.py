@@ -16,3 +16,7 @@ class TournamentOut(Schema):
     players: List[PlayerOut] | None = None
     rounds: List[RoundOut] | None = None
     standings: List[StandingOut] | None = None
+
+
+class TournamentSelector(Schema):
+    id: int
