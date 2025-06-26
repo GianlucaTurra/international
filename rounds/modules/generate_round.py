@@ -1,23 +1,11 @@
 from typing import List, Set
 
+from django.db import transaction
+
 from pairings.models import Pairing, PlayerEntry
 from rounds.models import Round
 from standings.models import Standing
 from tournaments.models import Tournament, TournamentIsCompleted
-
-
-class RoundGenerator:
-    def __init__(self, tournament: Tournament) -> None:
-        self.tournament = tournament
-        self.standings: List[Standing] = []
-        self.pairings: List[Standing] = []
-        self.player_entries: List[Standing] = []
-
-    def generate(self):
-        if self.tournament.state == Tournament.States.COMPLETED:
-            raise TournamentIsCompleted(
-                "Cannot create rounds for completed tournaments."
-            )
 
 
 def generate_round(tournament: Tournament) -> Round:
@@ -49,8 +37,9 @@ def generate_round(tournament: Tournament) -> Round:
         player_entries.append(entry_2)
         standings.pop(0)
         standings.pop(standings.index(new_opponent))
-    new_round.save()
-    Standing.objects.bulk_create(standings)
-    Pairing.objects.bulk_create(pairings)
-    PlayerEntry.objects.bulk_create(player_entries)
+    with transaction.atomic():
+        new_round.save()
+        Standing.objects.bulk_create(standings)
+        Pairing.objects.bulk_create(pairings)
+        PlayerEntry.objects.bulk_create(player_entries)
     return new_round

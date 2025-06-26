@@ -4,6 +4,7 @@ from django.test import Client, TestCase
 from django.urls import reverse_lazy
 
 from rounds.models import Round
+from standings.models import OpponentsTracker
 from tournaments.models import Tournament
 
 TOURNAMENT_WITH_EMPTY_PLAYERS = {"name": "test", "players": []}
@@ -39,7 +40,7 @@ class CreateTournamentTestCase(TestCase):
 
     def test_no_body_request(self):
         response = self.client.post(self.url)
-        assert response.status_code >= 400
+        self.assertGreaterEqual(response.status_code, 400)
 
     def test_tournament_creation_with_empty_players(self):
         """
@@ -66,8 +67,18 @@ class CreateTournamentTestCase(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)
+        self.assertEqual(Tournament.objects.get(pk=1).players.count(), 4)
+        self.assertEqual(Tournament.objects.get(pk=1).standings.count(), 4)  # type: ignore
+        self.assertEqual(Tournament.objects.get(pk=1).rounds.count(), 1)  # type: ignore
+        self.assertEqual(Round.objects.get(pk=1).pairings.count(), 2)  # type: ignore
+        self.assertEqual(OpponentsTracker.objects.count(), 4)
 
     def test_tournament_creation_with_odd_number_of_players(self):
+        """
+        Shouldn't be necessary to repeat all assertions from the test with
+        event amount of players since the only difference is the presence of
+        the placeholder player for byes.
+        """
         response = self.client.post(
             self.url,
             json.dumps(TOURNAMENT_WITH_ODD_NUMBER_OF_PLAYERS),

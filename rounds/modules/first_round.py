@@ -1,6 +1,8 @@
 import random
 from typing import Dict, List
 
+from django.db import transaction
+
 from pairings.models import Pairing, PlayerEntry
 from players.models import Player
 from rounds.models import Round
@@ -9,6 +11,11 @@ from tournaments.models import Tournament
 
 
 class FirstRoundGenerator:
+    """
+    Class to generate the first round of a Swiss tournament. The rule for the
+    first round is to create random pairings with no seeds.
+    """
+
     def __init__(self, tournament: Tournament) -> None:
         self.standings: List[Standing] = []
         self.tournament: Tournament = tournament
@@ -27,10 +34,11 @@ class FirstRoundGenerator:
         random.shuffle(self.players)
         self.create_standings()
         self.create_pairings()
-        Standing.objects.bulk_create(self.standings)
-        Pairing.objects.bulk_create(self.pairings)
-        PlayerEntry.objects.bulk_create(self.player_entries)
-        OpponentsTracker.objects.bulk_create(self.opponents_trackers)
+        with transaction.atomic():
+            Standing.objects.bulk_create(self.standings)
+            Pairing.objects.bulk_create(self.pairings)
+            PlayerEntry.objects.bulk_create(self.player_entries)
+            OpponentsTracker.objects.bulk_create(self.opponents_trackers)
 
     def create_standings(self):
         for player in self.players:

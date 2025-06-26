@@ -64,6 +64,8 @@ class PlayerEntry(models.Model):
         match result:
             case PairingResult.WIN:
                 self.standing.matches_won += 1
+                self.standing.points += 3
             case PairingResult.DRAW:
                 self.standing.matches_tied += 1
+                self.standing.points += 1
         self.standing.save()

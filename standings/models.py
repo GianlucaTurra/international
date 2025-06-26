@@ -6,7 +6,13 @@ from tournaments.models import Tournament
 
 
 class Standing(models.Model):
-    """Model definition for Standing."""
+    """
+    Model definition for Standing.
+    Human relevant informations, such as the order of the standings translated
+    into players' ranking in the tournament is not present in the database's
+    informations and only considered when reading through the ORDER BY defined
+    into the Meta definition of this model.
+    """
 
     tournament = models.ForeignKey(
         Tournament, on_delete=models.CASCADE, related_name="standings"
@@ -20,8 +26,6 @@ class Standing(models.Model):
     games_tied = models.IntegerField(default=0)
     matches_played = models.IntegerField(default=0)
     games_played = models.IntegerField(default=0)
-
-    # TODO: are these needed?
     opponents_match_winrate = models.FloatField(default=0)
     opponents_game_winrate = models.FloatField(default=0)
     points = models.IntegerField(default=0)
@@ -33,7 +37,7 @@ class Standing(models.Model):
         verbose_name_plural = "Standings"
         db_table = "standings"
         ordering = [
-            "-tournament",
+            "-points",
             "-matches_won",
             "-games_won",
             "-opponents_match_winrate",
@@ -43,9 +47,6 @@ class Standing(models.Model):
     def __str__(self):
         """Unicode representation of Standing."""
         return f"{self.player}: {self.matches_won} - {self.games_won} - {self.points}"
-
-    def update_oppoenets_statistics(self):
-        pass
 
 
 class OpponentsTracker(models.Model):

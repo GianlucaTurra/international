@@ -6,17 +6,7 @@ from django_extensions.db.models import TimeStampedModel
 
 from players.models import Player
 from players.schemas import PlayerIn
-
-
-class TournamentIsCompleted(Exception):
-    """
-    Custom Exception raised to explicitly tell api methods the operation is
-    not valid for completed tournaments.
-    """
-
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+from tournaments.exceptions import TournamentIsCompleted, TournamentIsOngoing
 
 
 class Tournament(TimeStampedModel, models.Model):
@@ -47,20 +37,25 @@ class Tournament(TimeStampedModel, models.Model):
     def __str__(self) -> str:
         return self.name
 
-    # TODO: refactor with less indentation
     def add_player_from_playerin_list(self, players: list[PlayerIn] | None):
-        if players is None:
+        if players is None or players == []:
             return
         registered_players: List[Player] = []
+        new_players: List[Player] = []
         for player in players:
             if player.id is None:
-                registered_players.append(Player.objects.create(name=player.name))
+                p = Player(name=player.name)
+                registered_players.append(p)
+                new_players.append(p)
             else:
                 try:
                     p = Player.objects.get(pk=player.id)
                     registered_players.append(p)
                 except Player.DoesNotExist:
-                    registered_players.append(Player.objects.create(name=player.name))
+                    p = Player(name=player.name)
+                    registered_players.append(p)
+                    new_players.append(p)
+        Player.objects.bulk_create(new_players)
         self.players.add(*registered_players)
 
     def calculate_optimal_number_of_rounds(self) -> None:
@@ -73,7 +68,7 @@ class Tournament(TimeStampedModel, models.Model):
         if self.state is self.States.COMPLETED:
             raise TournamentIsCompleted("Cannot start an already completed tournament")
         if self.state is self.States.ONGOING:
-            return
+            raise TournamentIsOngoing("Cannot start and already ongoing tournament")
         self.state = self.States.ONGOING
         self.calculate_optimal_number_of_rounds()
         if (self.players.count() % 2) != 0:
