@@ -1,5 +1,6 @@
 import json
 
+from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse_lazy
 
@@ -35,11 +36,21 @@ class CreateTournamentTestCase(TestCase):
     """
 
     def setUp(self) -> None:
+        self.user = User.objects.create_user(
+            username="gino", password="gino", email="ginoilpostino@email.com"
+        )
         self.client = Client()
+        auth_resp = self.client.post(
+            reverse_lazy("api-1.0.0:token_obtain_pair"),
+            {"username": "gino", "password": "gino"},
+            content_type="application/json",
+        )
+        assert auth_resp.status_code == 200
+        self.token = auth_resp.json()["access"]
         self.url = reverse_lazy("api-1.0.0:create_tournament")
 
     def test_no_body_request(self):
-        response = self.client.post(self.url)
+        response = self.client.post(self.url, HTTP_AUTHORIZATION=f"Bearer {self.token}")
         self.assertGreaterEqual(response.status_code, 400)
 
     def test_tournament_creation_with_empty_players(self):
@@ -51,6 +62,7 @@ class CreateTournamentTestCase(TestCase):
             self.url,
             json.dumps(TOURNAMENT_WITH_EMPTY_PLAYERS),
             content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)
@@ -64,6 +76,7 @@ class CreateTournamentTestCase(TestCase):
             self.url,
             json.dumps(TOURNAMENT_WITH_EVEN_NUMBER_OF_PLAYERS),
             content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)
@@ -83,6 +96,7 @@ class CreateTournamentTestCase(TestCase):
             self.url,
             json.dumps(TOURNAMENT_WITH_ODD_NUMBER_OF_PLAYERS),
             content_type="application/json",
+            HTTP_AUTHORIZATION=f"Bearer {self.token}",
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Tournament.objects.count(), 1)

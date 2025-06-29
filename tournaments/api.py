@@ -4,17 +4,20 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
+from ninja_jwt.authentication import JWTAuth
 
+from international.schemas import ErrorMessage
 from rounds.modules.first_round import FirstRoundGenerator
 from tournaments.exceptions import TournamentIsOngoing
 from tournaments.models import Tournament, TournamentIsCompleted
 from tournaments.schemas import TournamentOut, TournamnetIn
-from international.schemas import ErrorMessage
 
 router = Router()
 
 
-@router.post("/create", response={201: TournamentOut, 400: ErrorMessage})
+@router.post(
+    "/create", auth=JWTAuth(), response={201: TournamentOut, 400: ErrorMessage}
+)
 def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """
     Create a tournament with an optional list of players. Players can be
@@ -26,9 +29,9 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     try:
         tournament.start()
     except TournamentIsCompleted as e:
-        return ErrorMessage(content=e.message)
+        return 400, ErrorMessage(content=e.message)
     except TournamentIsOngoing as e:
-        return ErrorMessage(content=e.message)
+        return 400, ErrorMessage(content=e.message)
     FirstRoundGenerator(tournament).generate()
     return 201, tournament
 
@@ -41,7 +44,7 @@ def get_tournament(request: HttpRequest, id: int):
     return get_object_or_404(Tournament, pk=id)
 
 
-@router.delete("/{id}", response={200: TournamentOut, 404: None})
+@router.delete("/{id}", auth=JWTAuth(), response={200: TournamentOut, 404: None})
 def delete_tournament(request: HttpRequest, id: int):
     tournament = get_object_or_404(Tournament, pk=id)
     tournament.delete()
