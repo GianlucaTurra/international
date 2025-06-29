@@ -11,3 +11,4 @@ class PlayerIn(Schema):
 class PlayerOut(Schema):
     id: int
     name: str
+    is_placeholder: bool
