@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from players.models import Player
 from rounds.models import Round
-from rounds.modules.first_round import FirstRoundGenerator
+from rounds.modules.first_round import RandomFirstRoundGenerator
 from tournaments.models import Tournament
 
 
@@ -14,7 +14,7 @@ class FirstRoundGenerationTestCase(TestCase):
         """
         If no player is passed, no rounds nor standings should be created
         """
-        FirstRoundGenerator(self.tournament).generate()
+        RandomFirstRoundGenerator(self.tournament).generate()
         self.tournament.refresh_from_db()
         self.assertEqual(self.tournament.rounds.count(), 0)  # type: ignore
         self.assertEqual(self.tournament.standings.count(), 0)  # type: ignore
@@ -26,7 +26,7 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Stefano"),
             ]
         )
-        FirstRoundGenerator(self.tournament).generate()
+        RandomFirstRoundGenerator(self.tournament).generate()
         first_round: Round = self.tournament.rounds.get_queryset()[0]  # type: ignore
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore
 
@@ -42,6 +42,6 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Eliminiano"),
             ]
         )
-        FirstRoundGenerator(self.tournament).generate()
+        RandomFirstRoundGenerator(self.tournament).generate()
         first_round: Round = self.tournament.rounds.get_queryset()[0]  # type: ignore
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore

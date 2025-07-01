@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from players.models import Player
 from rounds.models import Round
-from rounds.modules.first_round import FirstRoundGenerator
+from rounds.modules.first_round import RandomFirstRoundGenerator
 from tournaments.models import Tournament
 
 
@@ -12,7 +12,9 @@ class FirstRoundGeneratorTests(TestCase):
         self.timmy = Player.objects.create(name="timmy")
         self.edo = Player.objects.create(name="edo")
         self.tournament.players.add(self.edo, self.timmy)
-        self.first_round_generator = FirstRoundGenerator(tournament=self.tournament)
+        self.first_round_generator = RandomFirstRoundGenerator(
+            tournament=self.tournament
+        )
         self.first_round_generator.round = Round.objects.create(
             number=1, tournament=self.tournament
         )

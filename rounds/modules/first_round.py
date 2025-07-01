@@ -10,7 +10,7 @@ from standings.models import OpponentsTracker, Standing
 from tournaments.models import Tournament
 
 
-class FirstRoundGenerator:
+class RandomFirstRoundGenerator:
     """
     Class to generate the first round of a Swiss tournament. The rule for the
     first round is to create random pairings with no seeds.
@@ -56,12 +56,16 @@ class FirstRoundGenerator:
             self.pairings.append(pairing)
             self.player_entries.append(
                 PlayerEntry(
-                    pairing=pairing, player=p1, standing=self.standings_cache[p1.name]
+                    pairing=pairing,
+                    player=p1,
+                    standing=self.standings_cache[p1.name],
                 )
             )
             self.player_entries.append(
                 PlayerEntry(
-                    pairing=pairing, player=p2, standing=self.standings_cache[p2.name]
+                    pairing=pairing,
+                    player=p2,
+                    standing=self.standings_cache[p2.name],
                 )
             )
             self.opponents_trackers.append(

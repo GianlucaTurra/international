@@ -5,11 +5,11 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
-from rounds.modules.first_round import FirstRoundGenerator
+from international.schemas import ErrorMessage
+from rounds.modules.first_round import RandomFirstRoundGenerator
 from tournaments.exceptions import TournamentIsOngoing
 from tournaments.models import Tournament, TournamentIsCompleted
 from tournaments.schemas import TournamentOut, TournamnetIn
-from international.schemas import ErrorMessage
 
 router = Router()
 
@@ -29,7 +29,7 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
         return ErrorMessage(content=e.message)
     except TournamentIsOngoing as e:
         return ErrorMessage(content=e.message)
-    FirstRoundGenerator(tournament).generate()
+    RandomFirstRoundGenerator(tournament).generate()
     return 201, tournament
 
 

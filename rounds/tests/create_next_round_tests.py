@@ -9,7 +9,7 @@ from standings.models import OpponentsTracker, Standing
 from tournaments.models import Tournament
 
 
-class CreateNextRoundTestCase(TestCase):
+class CreateSuccessfulSecondRoundTestCase(TestCase):
     def setUp(self) -> None:
         self.tournament = Tournament.objects.create(name="test")
         # Creating players
@@ -56,6 +56,10 @@ class CreateNextRoundTestCase(TestCase):
             opponents_match_winrate=0,
             opponents_game_winrate=0.33,
         )
+        self.client = Client()
+        self.url = reverse("api-1.0.0:create_next_round")
+
+    def test_second_round_with_proper_first_round(self):
         self.first_round = Round.objects.create(
             number=1, tournament=self.tournament, state=Round.States.COMPLETED
         )
@@ -71,12 +75,59 @@ class CreateNextRoundTestCase(TestCase):
         OpponentsTracker.objects.create(
             standing=self.dani_s, opponent=self.gigi_s, round=self.first_round
         )
-        self.client = Client()
-        self.url = reverse("api-1.0.0:create_next_round")
-
-    def test_round_2_creation(self):
         response = self.client.post(
             self.url, data=json.dumps({"id": 1}), content_type="application/json"
         )
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.tournament.rounds.count(), 2)  # type: ignore
+
+    def test_second_round_with_ongoing_first_round(self):
+        self.first_round = Round.objects.create(
+            number=1, tournament=self.tournament, state=Round.States.ONGOING
+        )
+        OpponentsTracker.objects.create(
+            standing=self.timmy_s, opponent=self.edo_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.edo_s, opponent=self.timmy_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.gigi_s, opponent=self.dani_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.dani_s, opponent=self.gigi_s, round=self.first_round
+        )
+        response = self.client.post(
+            self.url, data=json.dumps({"id": 1}), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.tournament.rounds.count(), 1)  # type: ignore
+
+    def test_second_round_with_completed_tournament(self):
+        self.tournament.state = Tournament.States.COMPLETED
+        self.tournament.save()
+        self.tournament.refresh_from_db()
+        self.first_round = Round.objects.create(
+            number=1, tournament=self.tournament, state=Round.States.ONGOING
+        )
+        OpponentsTracker.objects.create(
+            standing=self.timmy_s, opponent=self.edo_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.edo_s, opponent=self.timmy_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.gigi_s, opponent=self.dani_s, round=self.first_round
+        )
+        OpponentsTracker.objects.create(
+            standing=self.dani_s, opponent=self.gigi_s, round=self.first_round
+        )
+        response = self.client.post(
+            self.url, data=json.dumps({"id": 1}), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.tournament.rounds.count(), 1)  # type: ignore
+        # Probably not needed but better safe than sorry
+        self.tournament.state = Tournament.States.ONGOING
+        self.tournament.save()
+        self.tournament.refresh_from_db()
