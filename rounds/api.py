@@ -15,8 +15,6 @@ from tournaments.schemas import TournamentSelector
 
 router = Router()
 
-# TODO: With pydantic validators no 404 should raise anymore
-
 
 @router.put("/save", response={200: List[StandingOut], 400: ErrorMessage})
 def save_round(request: HttpRequest, payload: RoundSchema):

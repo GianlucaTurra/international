@@ -13,9 +13,14 @@ class Round(models.Model):
 
     number = models.IntegerField()
     tournament = models.ForeignKey(
-        Tournament, on_delete=models.CASCADE, related_name="rounds"
+        Tournament,
+        on_delete=models.CASCADE,
+        related_name="rounds",
     )
-    state = models.CharField(choices=States, default=States.PROGRAMMED)
+    state = models.CharField(
+        choices=States,
+        default=States.PROGRAMMED,
+    )
 
     class Meta:
         """Meta definition for Round."""
