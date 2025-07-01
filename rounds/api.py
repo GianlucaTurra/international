@@ -37,7 +37,7 @@ def create_next_round(request: HttpRequest, payload: TournamentSelector):
     Not available if the tournament's last round is not completed.
     """
     tournament = Tournament.objects.get(pk=payload.id)
-    if tournament.rounds.latest().state is not Round.States.COMPLETED:  # type: ignore
+    if tournament.rounds.latest().state is not Round.States.COMPLETED.value:  # type: ignore
         return 400, ErrorMessage(
             content=f"Tournament {tournament.name} lates round is not completed"
         )

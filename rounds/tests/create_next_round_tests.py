@@ -12,10 +12,13 @@ from tournaments.models import Tournament
 class CreateNextRoundTestCase(TestCase):
     def setUp(self) -> None:
         self.tournament = Tournament.objects.create(name="test")
+        # Creating players
         self.timmy = Player.objects.create(name="timmy")
         self.gigi = Player.objects.create(name="gigi")
         self.dani = Player.objects.create(name="dani")
         self.edo = Player.objects.create(name="edo")
+        self.tournament.players.add(self.timmy, self.gigi, self.dani, self.edo)
+        # Creating standings
         self.timmy_s = Standing.objects.create(
             player=self.timmy,
             tournament=self.tournament,
@@ -53,8 +56,9 @@ class CreateNextRoundTestCase(TestCase):
             opponents_match_winrate=0,
             opponents_game_winrate=0.33,
         )
-        self.tournament.players.add(self.timmy, self.gigi, self.dani, self.edo)
-        self.first_round = Round.objects.create(number=1, tournament=self.tournament)
+        self.first_round = Round.objects.create(
+            number=1, tournament=self.tournament, state=Round.States.COMPLETED
+        )
         OpponentsTracker.objects.create(
             standing=self.timmy_s, opponent=self.edo_s, round=self.first_round
         )
