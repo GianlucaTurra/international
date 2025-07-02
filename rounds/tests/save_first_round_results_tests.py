@@ -16,7 +16,7 @@ class SaveFirstRoundApiTestCase(TestCase):
         self.tournament = Tournament.objects.create(name="Test")
         # Creating players
         self.timoty = Player.objects.create(name="Timoty")
-        self.gianluca = Player.objects.create(name="Gianluuca")
+        self.gianluca = Player.objects.create(name="Gianluca")
         self.edoardo = Player.objects.create(name="Edoardo")
         self.daniele = Player.objects.create(name="Daniele")
         self.tournament.players.add(

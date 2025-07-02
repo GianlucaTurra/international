@@ -1,4 +1,5 @@
 from enum import Enum
+
 from django.db import models
 from django.db.models.fields.related import ForeignKey
 
@@ -56,7 +57,7 @@ class PlayerEntry(models.Model):
     def __str__(self):
         return f"{self.player.name} - {self.wins}"
 
-    def update_standings(self, result: PairingResult, games_played: int):
+    def update_standings(self, result: PairingResult, games_played: int) -> Standing:
         self.standing.games_won += self.wins
         self.standing.games_tied += self.draws
         self.standing.matches_played += 1
@@ -68,4 +69,4 @@ class PlayerEntry(models.Model):
             case PairingResult.DRAW:
                 self.standing.matches_tied += 1
                 self.standing.points += 1
-        self.standing.save()
+        return self.standing

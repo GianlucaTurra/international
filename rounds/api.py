@@ -7,7 +7,7 @@ from ninja import Router
 from international.schemas import ErrorMessage
 from rounds.models import Round
 from rounds.modules.generate_round import SimpleSwissRoundGenerator
-from rounds.modules.save_round import save_round_to_db
+from rounds.modules.save_round import SimpleSwissRoundSaver
 from rounds.schemas import RoundSchema
 from standings.schemas import StandingOut
 from tournaments.models import Tournament
@@ -26,9 +26,9 @@ def save_round(request: HttpRequest, payload: RoundSchema):
     current_round = Round.objects.get(pk=payload.id)
     if current_round.state is Round.States.COMPLETED.value:
         return 400, ErrorMessage(content=f"Round {current_round.pk} already completed")
-    save_round_to_db(payload)
-    current_round.refresh_from_db()
-    return current_round.tournament.standings.all()
+    return (
+        SimpleSwissRoundSaver(payload, current_round).save().tournament.standings.all()
+    )
 
 
 @router.post("/next", response={201: RoundSchema, 400: ErrorMessage})
