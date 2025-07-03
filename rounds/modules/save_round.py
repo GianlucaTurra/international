@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Tuple
 
 from django.db import transaction
@@ -11,7 +12,12 @@ from standings.models import Standing
 from tournaments.models import Tournament
 
 
-class SimpleSwissRoundSaver:
+class RoundSaver(ABC):
+    def save(self) -> Round:  # type: ignore
+        pass
+
+
+class SimpleSwissRoundSaver(RoundSaver):
     def __init__(self, round: RoundSchema, current_round: Round) -> None:
         self.round = round
         self.current_round = current_round

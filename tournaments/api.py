@@ -6,7 +6,7 @@ from ninja import Router
 from ninja.pagination import paginate
 
 from international.schemas import ErrorMessage
-from rounds.modules.first_round import RandomFirstRoundGenerator
+from rounds.modules.round_manager_factory import get_first_round_generator
 from tournaments.exceptions import TournamentIsOngoing
 from tournaments.models import Tournament, TournamentIsCompleted
 from tournaments.schemas import TournamentOut, TournamnetIn
@@ -25,11 +25,9 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     tournament.add_player_from_playerin_list(payload.players)
     try:
         tournament.start()
-    except TournamentIsCompleted as e:
+    except (TournamentIsCompleted, TournamentIsOngoing) as e:
         return ErrorMessage(content=e.message)
-    except TournamentIsOngoing as e:
-        return ErrorMessage(content=e.message)
-    RandomFirstRoundGenerator(tournament).generate()
+    get_first_round_generator(tournament).generate()
     return 201, tournament
 
 

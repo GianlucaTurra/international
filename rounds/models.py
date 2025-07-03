@@ -33,3 +33,6 @@ class Round(models.Model):
     def __str__(self):
         """Unicode representation of Round."""
         return f"Round n.{self.number}"
+
+    def is_completed(self) -> bool:
+        return self.state == Round.States.COMPLETED.value

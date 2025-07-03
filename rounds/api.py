@@ -6,8 +6,7 @@ from ninja import Router
 
 from international.schemas import ErrorMessage
 from rounds.models import Round
-from rounds.modules.generate_round import SimpleSwissRoundGenerator
-from rounds.modules.save_round import SimpleSwissRoundSaver
+from rounds.modules.round_manager_factory import get_round_generator, get_round_saver
 from rounds.schemas import RoundSchema
 from standings.schemas import StandingOut
 from tournaments.models import Tournament
@@ -24,11 +23,9 @@ def save_round(request: HttpRequest, payload: RoundSchema):
     Only available for not completed rounds.
     """
     current_round = Round.objects.get(pk=payload.id)
-    if current_round.state is Round.States.COMPLETED.value:
+    if current_round.is_completed():
         return 400, ErrorMessage(content=f"Round {current_round.pk} already completed")
-    return (
-        SimpleSwissRoundSaver(payload, current_round).save().tournament.standings.all()
-    )
+    return get_round_saver(payload, current_round).save().tournament.standings.all()
 
 
 @router.post("/next", response={201: RoundSchema, 400: ErrorMessage})
@@ -37,15 +34,15 @@ def create_next_round(request: HttpRequest, payload: TournamentSelector):
     Not available if the tournament's last round is not completed.
     """
     tournament = Tournament.objects.get(pk=payload.id)
-    if tournament.state is Tournament.States.COMPLETED.value:
+    if tournament.is_completed():
         return 400, ErrorMessage(
             content="Cannot create rounds for completed tournaments."
         )
-    if tournament.rounds.latest().state is not Round.States.COMPLETED.value:  # type: ignore
+    if not tournament.rounds.latest().is_completed():  # type: ignore
         return 400, ErrorMessage(
             content=f"Tournament {tournament.name} lates round is not completed"
         )
-    return 201, SimpleSwissRoundGenerator(tournament).generate_round()
+    return 201, get_round_generator(tournament).generate_round()
 
 
 @router.get("/{round_id}", response={200: RoundSchema, 404: None})

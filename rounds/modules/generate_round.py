@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import List, Set
 
 from django.db import transaction
@@ -8,7 +9,12 @@ from standings.models import Standing
 from tournaments.models import Tournament
 
 
-class SimpleSwissRoundGenerator:
+class RoundGenerator(ABC):
+    def generate_round(self) -> Round:  # type: ignore
+        pass
+
+
+class SimpleSwissRoundGenerator(RoundGenerator):
     def __init__(self, tournament: Tournament) -> None:
         self.tournament = tournament
         self.new_round = Round(
