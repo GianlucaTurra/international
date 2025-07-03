@@ -19,10 +19,14 @@ class Tournament(TimeStampedModel, models.Model):
         ONGOING = "O", "Ongoing"
         COMPLETED = "C", "Completed"
 
+    class Types(models.TextChoices):
+        SIMPLE = "S", "Simple"
+
     name = models.CharField(max_length=100)
     players = models.ManyToManyField(Player, related_name="tournaments")
     number_of_rounds = models.IntegerField(null=True)
     state = models.CharField(choices=States, default=States.PROGRAMMED)
+    type = models.CharField(choices=Types, default=Types.SIMPLE)
 
     class Meta:
         """
@@ -36,6 +40,12 @@ class Tournament(TimeStampedModel, models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def is_completed(self) -> bool:
+        return self.state == Tournament.States.COMPLETED.value
+
+    def is_ongoing(self) -> bool:
+        return self.state == Tournament.States.ONGOING.value
 
     def add_player_from_playerin_list(self, players: list[PlayerIn] | None):
         if players is None or players == []:
@@ -65,9 +75,9 @@ class Tournament(TimeStampedModel, models.Model):
         self.number_of_rounds = math.ceil(math.log(self.players.count(), 2))
 
     def start(self) -> None:
-        if self.state is self.States.COMPLETED:
+        if self.is_completed():
             raise TournamentIsCompleted("Cannot start an already completed tournament")
-        if self.state is self.States.ONGOING:
+        if self.is_ongoing():
             raise TournamentIsOngoing("Cannot start and already ongoing tournament")
         self.state = self.States.ONGOING
         self.calculate_optimal_number_of_rounds()

@@ -7,7 +7,7 @@ from ninja.pagination import paginate
 from ninja_jwt.authentication import JWTAuth
 
 from international.schemas import ErrorMessage
-from rounds.modules.first_round import FirstRoundGenerator
+from rounds.modules.round_manager_factory import get_first_round_generator
 from tournaments.exceptions import TournamentIsOngoing
 from tournaments.models import Tournament, TournamentIsCompleted
 from tournaments.schemas import TournamentOut, TournamnetIn
@@ -28,11 +28,9 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
     tournament.add_player_from_playerin_list(payload.players)
     try:
         tournament.start()
-    except TournamentIsCompleted as e:
-        return 400, ErrorMessage(content=e.message)
-    except TournamentIsOngoing as e:
-        return 400, ErrorMessage(content=e.message)
-    FirstRoundGenerator(tournament).generate()
+    except (TournamentIsCompleted, TournamentIsOngoing) as e:
+        return ErrorMessage(content=e.message)
+    get_first_round_generator(tournament).generate()
     return 201, tournament
 
 
