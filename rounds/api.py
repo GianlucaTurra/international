@@ -3,6 +3,7 @@ from typing import List
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from ninja_jwt.authentication import JWTAuth
 
 from international.schemas import ErrorMessage
 from rounds.models import Round
@@ -15,7 +16,11 @@ from tournaments.schemas import TournamentSelector
 router = Router()
 
 
-@router.put("/save", response={200: List[StandingOut], 400: ErrorMessage})
+@router.put(
+    "/save",
+    auth=JWTAuth(),
+    response={200: List[StandingOut], 400: ErrorMessage},
+)
 def save_round(request: HttpRequest, payload: RoundSchema):
     """
     Save round's results to database updating standings and opponents'
@@ -28,7 +33,7 @@ def save_round(request: HttpRequest, payload: RoundSchema):
     return get_round_saver(payload, current_round).save().tournament.standings.all()
 
 
-@router.post("/next", response={201: RoundSchema, 400: ErrorMessage})
+@router.post("/next", auth=JWTAuth(), response={201: RoundSchema, 400: ErrorMessage})
 def create_next_round(request: HttpRequest, payload: TournamentSelector):
     """
     Not available if the tournament's last round is not completed.

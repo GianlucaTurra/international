@@ -16,7 +16,9 @@ router = Router()
 
 
 @router.post(
-    "/create", auth=JWTAuth(), response={201: TournamentOut, 400: ErrorMessage}
+    "/create",
+    auth=JWTAuth(),
+    response={201: TournamentOut, 400: ErrorMessage},
 )
 def create_tournament(request: HttpRequest, payload: TournamnetIn):
     """

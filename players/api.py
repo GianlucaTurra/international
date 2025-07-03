@@ -4,9 +4,10 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
+from ninja_jwt.authentication import JWTAuth
 
 from players.models import Player
-from players.schemas import PlayerOut, PlayerIn
+from players.schemas import PlayerIn, PlayerOut
 
 router = Router()
 
@@ -17,13 +18,13 @@ def get_players(request: HttpRequest):
     return Player.objects.all()
 
 
-@router.post("/create", response={201: PlayerOut})
+@router.post("/create", auth=JWTAuth(), response={201: PlayerOut})
 def create_player(request: HttpRequest, player: PlayerIn):
     p = Player.objects.create(name=player.name)
     return 201, p
 
 
-@router.post("/create-multiple", response={201: List[PlayerOut]})
+@router.post("/create-multiple", auth=JWTAuth(), response={201: List[PlayerOut]})
 def create_players(request: HttpRequest, players: List[PlayerIn]):
     ret_players: List[Player] = []
     for player in players:
