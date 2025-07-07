@@ -23,6 +23,7 @@ class SimpleSwissRoundSaver(RoundSaver):
         self.current_round = current_round
         self.updated_entries: List[PlayerEntry] = []
         self.updated_standings: List[Standing] = []
+        self.tournament: Tournament
 
     def save(self) -> Round:
         for req_pairing in self.round.pairings:
@@ -31,9 +32,9 @@ class SimpleSwissRoundSaver(RoundSaver):
                 *self.update_player_entries(pairing, req_pairing.entries)
             )
         self.current_round.state = Round.States.COMPLETED
-        tournament: Tournament = self.current_round.tournament
-        if self.current_round.number == tournament.number_of_rounds:
-            tournament.state = Tournament.States.COMPLETED
+        self.tournament: Tournament = self.current_round.tournament
+        if self.current_round.number == self.tournament.number_of_rounds:
+            self.tournament.state = Tournament.States.COMPLETED
         with transaction.atomic():
             PlayerEntry.objects.bulk_update(self.updated_entries, fields=["wins"])
             Standing.objects.bulk_update(
@@ -57,7 +58,11 @@ class SimpleSwissRoundSaver(RoundSaver):
                 ],
             )
             self.current_round.save()
-            tournament.save()
+            self.tournament.save()
+        with transaction.atomic():
+            if self.tournament.is_completed():
+                for standing in self.tournament.standings.all():  # type: ignore
+                    standing.opponents_tacker.all().delete()
         self.current_round.refresh_from_db()
         return self.current_round
 
