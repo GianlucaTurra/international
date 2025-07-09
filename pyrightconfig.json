@@ -1,3 +1,16 @@
 {
-  "reportIncompatibleVariableOverride": false
+  "reportIncompatibleVariableOverride": false,
+  "include": ["."],
+  "exclude": ["**/migrations", "**/__pycache__"],
+  "ignore": ["manage.py"],
+
+  "pythonVersion": "3.13",
+  "typeCheckingMode": "standard",
+
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "reportOptionalMemberAccess": false,
+
+  "useLibraryCodeForTypes": true,
+  "stubPath": "typings"
 }
