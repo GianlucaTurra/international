@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from ninja import Schema
 from pydantic import AfterValidator, ValidationError
@@ -12,21 +12,21 @@ from tournaments.models import Tournament
 def exists(id) -> int:
     try:
         return Tournament.objects.get(pk=id).pk
-    except Tournament.DoesNotExist:
-        raise ValidationError(f"Tournament id {id} does not exists")
+    except Tournament.DoesNotExist as e:
+        raise ValidationError(f"Tournament id {id} does not exists") from e
 
 
 class TournamnetIn(Schema):
     name: str
-    players: Optional[List[PlayerIn]] = None
+    players: list[PlayerIn] | None = None
 
 
 class TournamentOut(Schema):
     id: int
     name: str
-    players: Optional[List[PlayerOut]] = None
-    rounds: Optional[List[RoundSchema]] = None
-    standings: Optional[List[StandingOut]] = None
+    players: list[PlayerOut] | None = None
+    rounds: list[RoundSchema] | None = None
+    standings: list[StandingOut] | None = None
 
 
 class TournamentSelector(Schema):

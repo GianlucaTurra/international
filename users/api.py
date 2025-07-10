@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from ninja.router import Router
 from ninja import Schema
+from ninja.router import Router
 
 router = Router()
 

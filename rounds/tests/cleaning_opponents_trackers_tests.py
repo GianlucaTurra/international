@@ -20,7 +20,7 @@ class CleanOpponentsTrackersAtEndOfTournament(TestCase):
         self.tournament.number_of_rounds = 1
 
     def test_all_trackers_are_deleted(self):
-        current_round = RandomFirstRoundGenerator(self.tournament).generate()
+        current_round = RandomFirstRoundGenerator(self.tournament).generate_round()
         entries = [
             PlayerEntrySchema(
                 id=1,

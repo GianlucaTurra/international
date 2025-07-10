@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated
 
 from ninja import Schema
 from pydantic import AfterValidator, ValidationError
@@ -10,11 +10,11 @@ from rounds.models import Round
 def exists(id) -> int:
     try:
         return Round.objects.get(pk=id).pk
-    except Round.DoesNotExist:
-        raise ValidationError(f"Round id {id} does not exists")
+    except Round.DoesNotExist as e:
+        raise ValidationError(f"Round id {id} does not exists") from e
 
 
 class RoundSchema(Schema):
     id: Annotated[int, AfterValidator(exists)]
-    number: Optional[int] = None
-    pairings: List[PairingSchema]
+    number: int | None = None
+    pairings: list[PairingSchema]

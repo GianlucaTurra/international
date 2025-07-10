@@ -1,5 +1,3 @@
-from typing import List
-
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -15,7 +13,7 @@ from tournaments.schemas import TournamentSelector
 router = Router()
 
 
-@router.put("/save", response={200: List[StandingOut], 400: ErrorMessage})
+@router.put("/save", response={200: list[StandingOut], 400: ErrorMessage})
 def save_round(request: HttpRequest, payload: RoundSchema):
     """
     Save round's results to database updating standings and opponents'

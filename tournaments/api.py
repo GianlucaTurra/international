@@ -1,5 +1,3 @@
-from typing import List
-
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
@@ -27,7 +25,7 @@ def create_tournament(request: HttpRequest, payload: TournamnetIn):
         tournament.start()
     except (TournamentIsCompleted, TournamentIsOngoing) as e:
         return ErrorMessage(content=e.message)
-    get_first_round_generator(tournament).generate()
+    get_first_round_generator(tournament).generate_round()
     return 201, tournament
 
 
@@ -46,7 +44,7 @@ def delete_tournament(request: HttpRequest, id: int):
     return 200, tournament
 
 
-@router.get("/", response={200: List[TournamentOut]})
+@router.get("/", response={200: list[TournamentOut]})
 @paginate
 def get_tournaments(request: HttpRequest):
     """

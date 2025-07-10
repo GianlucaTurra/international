@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import List, Tuple
+from abc import ABC, abstractmethod
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -13,7 +12,8 @@ from tournaments.models import Tournament
 
 
 class RoundSaver(ABC):
-    def save(self) -> Round:  # type: ignore
+    @abstractmethod
+    def save(self) -> Round:
         pass
 
 
@@ -21,8 +21,8 @@ class SimpleSwissRoundSaver(RoundSaver):
     def __init__(self, round: RoundSchema, current_round: Round) -> None:
         self.round = round
         self.current_round = current_round
-        self.updated_entries: List[PlayerEntry] = []
-        self.updated_standings: List[Standing] = []
+        self.updated_entries: list[PlayerEntry] = []
+        self.updated_standings: list[Standing] = []
         self.tournament: Tournament
 
     def save(self) -> Round:
@@ -67,11 +67,11 @@ class SimpleSwissRoundSaver(RoundSaver):
         return self.current_round
 
     def update_player_entries(
-        self, pairing: Pairing, new_entries: List[PlayerEntrySchema]
-    ) -> Tuple[PlayerEntry, PlayerEntry]:
-        entries: List[PlayerEntry] = []
-        old_entries: List[PlayerEntry] = list(pairing.entries.all())  # type: ignore
-        for old_entry, new_entry in zip(old_entries, new_entries):  # type: ignore
+        self, pairing: Pairing, new_entries: list[PlayerEntrySchema]
+    ) -> tuple[PlayerEntry, PlayerEntry]:
+        entries: list[PlayerEntry] = []
+        old_entries: list[PlayerEntry] = list(pairing.entries.all())  # type: ignore
+        for old_entry, new_entry in zip(old_entries, new_entries, strict=True):
             get_object_or_404(PlayerEntry, pk=new_entry.id)
             old_entry.wins = new_entry.wins
             entries.append(old_entry)
@@ -106,7 +106,7 @@ class SimpleSwissRoundSaver(RoundSaver):
 
     def update_opponents_informations(self) -> None:
         for standing in self.updated_standings:
-            opponents: List[Standing] = [
+            opponents: list[Standing] = [
                 oppo.standing
                 for oppo in list(standing.opponents.all())  # type: ignore
             ]

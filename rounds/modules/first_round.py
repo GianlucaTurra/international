@@ -1,6 +1,5 @@
 import random
-from abc import ABC
-from typing import Dict, List, Optional
+from abc import ABC, abstractmethod
 
 from django.db import transaction
 
@@ -12,7 +11,8 @@ from tournaments.models import Tournament
 
 
 class FirstRoundGenerator(ABC):
-    def generate(self) -> Optional[Round]:
+    @abstractmethod
+    def generate_round(self) -> Round | None:
         pass
 
 
@@ -23,17 +23,17 @@ class RandomFirstRoundGenerator(FirstRoundGenerator):
     """
 
     def __init__(self, tournament: Tournament) -> None:
-        self.standings: List[Standing] = []
+        self.standings: list[Standing] = []
         self.tournament: Tournament = tournament
         self.round: Round
-        self.players: List[Player] = list(self.tournament.players.all())
+        self.players: list[Player] = list(self.tournament.players.all())
         self.players_mid_number: int = len(self.players) // 2
-        self.pairings: List[Pairing] = []
-        self.player_entries: List[PlayerEntry] = []
-        self.standings_cache: Dict[str, Standing] = {}
-        self.opponents_trackers: List[OpponentsTracker] = []
+        self.pairings: list[Pairing] = []
+        self.player_entries: list[PlayerEntry] = []
+        self.standings_cache: dict[str, Standing] = {}
+        self.opponents_trackers: list[OpponentsTracker] = []
 
-    def generate(self) -> Optional[Round]:
+    def generate_round(self) -> Round | None:
         if self.players == []:
             return
         self.round = Round.objects.create(number=1, tournament=self.tournament)
@@ -58,7 +58,7 @@ class RandomFirstRoundGenerator(FirstRoundGenerator):
             self.players[: self.players_mid_number],
             self.players[self.players_mid_number :],
         )
-        for p1, p2 in zip(first_half, second_half):
+        for p1, p2 in zip(first_half, second_half, strict=True):
             pairing = Pairing(round=self.round)
             self.pairings.append(pairing)
             self.player_entries.append(

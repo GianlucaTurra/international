@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import List, Set
+from abc import ABC, abstractmethod
 
 from django.db import transaction
 
@@ -10,7 +9,8 @@ from tournaments.models import Tournament
 
 
 class RoundGenerator(ABC):
-    def generate_round(self) -> Round:  # type: ignore
+    @abstractmethod
+    def generate_round(self) -> Round:
         pass
 
 
@@ -22,15 +22,15 @@ class SimpleSwissRoundGenerator(RoundGenerator):
             tournament=self.tournament,
             state=Round.States.ONGOING,
         )
-        self.standings: List[Standing] = list(self.tournament.standings.all())  # type: ignore
-        self.pairings: List[Pairing] = []
-        self.player_entries: List[PlayerEntry] = []
+        self.standings: list[Standing] = list(self.tournament.standings.all())  # type: ignore
+        self.pairings: list[Pairing] = []
+        self.player_entries: list[PlayerEntry] = []
 
     def generate_round(self) -> Round:
         while len(self.standings) > 0:
             standing = self.standings[0]
             new_opponent: Standing
-            opponents_already_faced: Set[Standing] = set(standing.opponents.all())  # type: ignore
+            opponents_already_faced: set[Standing] = set(standing.opponents.all())  # type: ignore
             for s in self.standings[1:]:
                 if s in opponents_already_faced:
                     continue

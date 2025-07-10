@@ -1,12 +1,10 @@
-from typing import List
-
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate
 
 from players.models import Player
-from players.schemas import PlayerOut, PlayerIn
+from players.schemas import PlayerIn, PlayerOut
 
 router = Router()
 
@@ -23,9 +21,9 @@ def create_player(request: HttpRequest, player: PlayerIn):
     return 201, p
 
 
-@router.post("/create-multiple", response={201: List[PlayerOut]})
-def create_players(request: HttpRequest, players: List[PlayerIn]):
-    ret_players: List[Player] = []
+@router.post("/create-multiple", response={201: list[PlayerOut]})
+def create_players(request: HttpRequest, players: list[PlayerIn]):
+    ret_players: list[Player] = []
     for player in players:
         ret_players.append(Player(name=player.name))
     Player.objects.bulk_create(ret_players)

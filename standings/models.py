@@ -36,13 +36,13 @@ class Standing(models.Model):
         verbose_name = "Standing"
         verbose_name_plural = "Standings"
         db_table = "standings"
-        ordering = [
+        ordering = (
             "-points",
             "-matches_won",
             "-games_won",
             "-opponents_match_winrate",
             "-opponents_game_winrate",
-        ]
+        )
 
     def __str__(self):
         """Unicode representation of Standing."""

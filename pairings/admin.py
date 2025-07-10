@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from pairings.models import Pairing, PlayerEntry
+
+admin.site.register(Pairing)
+admin.site.register(PlayerEntry)
