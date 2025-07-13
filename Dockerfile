@@ -1,5 +1,5 @@
 # Builder container
-FROM python:3.13-alpine3.21 as Builder
+FROM python:3.13-alpine3.21 AS builder
 
 RUN mkdir /international
 
@@ -20,8 +20,8 @@ RUN adduser -D -h /home/intuser intuser && \
     mkdir /international && \
     chown -R intuser /international
 
-COPY --from=Builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
-COPY --from=Builder /usr/local/bin/ /usr/local/bin/
+COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 WORKDIR /international
 

@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.docker
+.dockerignore
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django stuff:
+*.log
+
+# Virtual environment
+.env
+.venv/
+venv/
+
+# Vim swap files
+**/*.swp
+
+# VS Code
+.vscode/
+
+# SQLite3 dev database
+*.sqlite3
