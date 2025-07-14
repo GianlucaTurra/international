@@ -34,7 +34,8 @@ ENV SECRET_KEY=django-insecure-$a8g)o$%*wi=ds%o#j459cao$(9l3%mmm2*t2+o+lb+n*(a9!
 
 USER intuser
 
-RUN python ./manage.py migrate
+RUN python ./manage.py migrate && \
+    python ./manage.py collectstatic
 
 EXPOSE 8000
 
