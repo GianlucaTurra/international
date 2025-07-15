@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: .
+    container_name: international
+    command: gunicorn international.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/international/static_files
+    networks:
+      - international
+
+  nginx:
+    build: ./nginx/
+    container_name: nginx
+    ports:
+      - 1337:80
+    volumes:
+      - static_volume:/international/static_files
+    depends_on:
+      - backend
+    networks:
+      - international
+
+volumes:
+  static_volume:
+
+networks:
+  international:
