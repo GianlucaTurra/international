@@ -1,0 +1,43 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[project]
+authors = [
+  {name = "Gianluca Turra"},
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "Django==5.2.1",
+  "django-extensions==4.1",
+  "django-ninja==1.4.1",
+  "django-ninja-extra==0.30.0",
+  "django-ninja-jwt==5.3.7",
+  "django-cors-headers==4.7.0",
+]
+description = "Backend app for International-Project"
+name = "international-be"
+readme = "README.md"
+requires-python = ">=3.12"
+version = "0.1.0"
+
+# [pyproject.optional-dependencies]
+# dev = [
+#   "django-stubs==5.2.0",
+#   "pytest==8.3.5",
+#   "pytest-django==4.11.1",
+# ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "international.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+
+[tool.django-stubs]
+django_settings_module = "international.settings"
+
+[tool.ruff]
+ignore = []
+select = ["E", "F", "B", "I", "UP", "RUF"]

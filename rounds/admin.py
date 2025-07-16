@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from rounds.models import Round
+
+admin.site.register(Round)

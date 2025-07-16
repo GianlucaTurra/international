@@ -13,7 +13,7 @@ class FirstRoundGenerationTestCase(TestCase):
         """
         If no player is passed, no rounds nor standings should be created
         """
-        get_first_round_generator(self.tournament).generate()
+        get_first_round_generator(self.tournament).generate_round()
         self.tournament.refresh_from_db()
         self.assertEqual(self.tournament.rounds.count(), 0)  # type: ignore
         self.assertEqual(self.tournament.standings.count(), 0)  # type: ignore
@@ -25,7 +25,7 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Stefano"),
             ]
         )
-        first_round = get_first_round_generator(self.tournament).generate()
+        first_round = get_first_round_generator(self.tournament).generate_round()
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore
 
     def test_odd_number_of_players(self):
@@ -40,5 +40,5 @@ class FirstRoundGenerationTestCase(TestCase):
                 Player.objects.create(name="Eliminiano"),
             ]
         )
-        first_round = get_first_round_generator(self.tournament).generate()
+        first_round = get_first_round_generator(self.tournament).generate_round()
         self.assertEqual(first_round.pairings.count(), 1)  # type: ignore

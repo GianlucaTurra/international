@@ -1,10 +1,8 @@
-from typing import Optional
-
 from ninja import Schema
 
 
 class PlayerIn(Schema):
-    id: Optional[int] = None
+    id: int | None = None
     name: str
 
 

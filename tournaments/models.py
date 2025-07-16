@@ -1,5 +1,4 @@
 import math
-from typing import List
 
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
@@ -34,9 +33,9 @@ class Tournament(TimeStampedModel, models.Model):
         """
 
         db_table = "tournaments"
-        verbose_name_plural = "tournamens"
+        verbose_name_plural = "tournaments"
         get_latest_by = "-created"
-        ordering = ["-created"]
+        ordering = ("-created",)
 
     def __str__(self) -> str:
         return self.name
@@ -50,8 +49,8 @@ class Tournament(TimeStampedModel, models.Model):
     def add_player_from_playerin_list(self, players: list[PlayerIn] | None):
         if players is None or players == []:
             return
-        registered_players: List[Player] = []
-        new_players: List[Player] = []
+        registered_players: list[Player] = []
+        new_players: list[Player] = []
         for player in players:
             if player.id is None:
                 p = Player(name=player.name)

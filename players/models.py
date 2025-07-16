@@ -8,7 +8,7 @@ class Player(models.Model):
     class Meta:
         db_table = "players"
         verbose_name_plural = "players"
-        ordering = ["name"]
+        ordering = ("name",)
 
     def __str__(self) -> str:
         return self.name
