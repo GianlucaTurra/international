@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = "django-insecure-$a8g)o$%*wi=ds%o#j459cao$(9l3%mmm2*t2+o+lb+n*(a9!)"
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", default=0)
+DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 # WARNING: only in dev phase
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
@@ -139,6 +139,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# WARNING: Just for dev phase
-# FIXME: Very very lazy by me
+# WARNING: Should be changed to allow only the frontend
 CORS_ALLOW_ALL_ORIGINS = True

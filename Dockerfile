@@ -20,6 +20,10 @@ RUN adduser -D -h /home/intuser intuser && \
     mkdir /international && \
     chown -R intuser /international
 
+RUN apk add curl && \
+    curl -sfS https://dotenvx.sh/install.sh | sh && \
+    dotenvx encrypt
+
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
@@ -27,15 +31,15 @@ WORKDIR /international
 
 COPY --chown=intuser:intuser . .
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DEBUG=0
-ENV SECRET_KEY=django-insecure-$a8g)o$%*wi=ds%o#j459cao$(9l3%mmm2*t2+o+lb+n*(a9!)
+# ENV PYTHONDONTWRITEBYTECODE=${PYTHONDONTWRITEBYTECODE}
+# ENV PYTHONUNBUFFERED=${PYTHONUNBUFFERED}
+# ENV DEBUG=${DEBUG}
+# ENV SECRET_KEY=${SECRET_KEY}
 
 USER intuser
 
-RUN python ./manage.py migrate && \
-    python ./manage.py collectstatic
+RUN dotenvx run -f .env.prod -- python ./manage.py migrate && \
+    dotenvx run -f .env.prod -- python ./manage.py collectstatic
 
 CMD [ "gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "international.wsgi:application"  ]
 

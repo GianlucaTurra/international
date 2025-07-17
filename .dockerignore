@@ -33,3 +33,6 @@ venv/
 
 # SQLite3 dev database
 *.sqlite3
+
+# dotenvx
+.env.keys

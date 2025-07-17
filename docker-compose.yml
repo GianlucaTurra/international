@@ -2,13 +2,15 @@ services:
   backend:
     build: .
     container_name: international
-    command: gunicorn international.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    command: dotenvx run -f .env.prod -- gunicorn international.wsgi:application --bind 0.0.0.0:8000 --workers 3
     expose:
       - 8000
     volumes:
       - static_volume:/international/static_files
     networks:
       - international
+    env_file:
+      - ./.env.prod
 
   nginx:
     build: ./nginx/
