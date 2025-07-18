@@ -21,8 +21,7 @@ RUN adduser -D -h /home/intuser intuser && \
     chown -R intuser /international
 
 RUN apk add curl && \
-    curl -sfS https://dotenvx.sh/install.sh | sh && \
-    dotenvx encrypt
+    curl -sfS https://dotenvx.sh/install.sh | sh
 
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
