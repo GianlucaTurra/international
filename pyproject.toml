@@ -17,6 +17,7 @@ dependencies = [
   "django-ninja-extra==0.30.0",
   "django-ninja-jwt==5.3.7",
   "django-cors-headers==4.7.0",
+  "psycopg2-binary==2.9.10",
 ]
 description = "Backend app for International-Project"
 name = "international-be"

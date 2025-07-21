@@ -12,6 +12,13 @@ services:
     env_file:
       - ./.env.prod
 
+  db:
+    image: postgres:17.5-alpine3.21
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env.prod
+
   nginx:
     build: ./nginx/
     container_name: nginx
@@ -26,6 +33,7 @@ services:
 
 volumes:
   static_volume:
+  postgres_data:
 
 networks:
   international:
